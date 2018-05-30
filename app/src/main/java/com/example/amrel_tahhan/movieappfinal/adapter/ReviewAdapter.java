@@ -5,6 +5,7 @@ package com.example.amrel_tahhan.movieappfinal.adapter;
  */
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,11 +24,17 @@ import java.util.List;
 
 public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder> {
 
+
     private List<Review> reviewList = new ArrayList<>();
 
 
-    public ReviewAdapter(List<Review> reviews) {
-        reviews = reviewList;
+//    public ReviewAdapter(List<Review> reviews) {
+//        reviews = reviewList;
+//    }
+
+    public void updateReviews(@NonNull final List<Review> reviews) {
+        this.reviewList = reviews;
+        notifyDataSetChanged();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -46,7 +53,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
     @Override
     public ReviewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.review_item, parent, false);
+                .inflate(R.layout.review_item, parent, true);
         ViewHolder viewHolder = new ViewHolder(v);
 
         return viewHolder;
@@ -55,11 +62,9 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
 
     @Override
     public void onBindViewHolder(ReviewAdapter.ViewHolder holder, int position) {
-        final Review reviewItem = reviewList.get(position);
-        final Context context = holder.viewHolderView.getContext();
+        holder.reviewAuthor.setText(reviewList.get(position).getAuthor());
+        holder.reviewContent.setText(reviewList.get(position).getContent());
 
-        holder.reviewAuthor.setText(reviewItem.getAuthor());
-        holder.reviewContent.setText(reviewItem.getContent());
 
 
 
@@ -70,6 +75,8 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
     public int getItemCount() {
         return reviewList.size();
     }
+
+
 
 
 }
