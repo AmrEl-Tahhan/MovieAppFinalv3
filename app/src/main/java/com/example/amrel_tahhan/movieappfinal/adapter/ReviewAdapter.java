@@ -12,6 +12,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import com.example.amrel_tahhan.movieappfinal.R;
 import com.example.amrel_tahhan.movieappfinal.model.Review;
+import com.example.amrel_tahhan.movieappfinal.model.ReviewResponse;
 import java.util.ArrayList;
 import java.util.List;
 

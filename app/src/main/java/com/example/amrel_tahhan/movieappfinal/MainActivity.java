@@ -143,7 +143,7 @@ public class MainActivity extends AppCompatActivity {
 
                     recyclerView.setVisibility(View.VISIBLE);
 //                       mProgressView.stopAndGone();
-                    Toast.makeText(getApplicationContext(), "response done", Toast.LENGTH_SHORT);
+                    Toast.makeText(getApplicationContext(), "response done", Toast.LENGTH_SHORT).show();
                 }
 
 

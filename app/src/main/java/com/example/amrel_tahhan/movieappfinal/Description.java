@@ -1,31 +1,26 @@
 package com.example.amrel_tahhan.movieappfinal;
 
-import android.content.Context;
-import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.amrel_tahhan.movieappfinal.adapter.MovieAdapter;
 import com.example.amrel_tahhan.movieappfinal.adapter.ReviewAdapter;
 import com.example.amrel_tahhan.movieappfinal.model.Movie;
 import com.example.amrel_tahhan.movieappfinal.model.Results;
 import com.example.amrel_tahhan.movieappfinal.model.Review;
+import com.example.amrel_tahhan.movieappfinal.model.ReviewResponse;
 import com.example.amrel_tahhan.movieappfinal.retrofit.MyWebService;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
@@ -52,11 +47,12 @@ public class Description extends AppCompatActivity {
     @BindView(R.id.review_recycler_view)
     RecyclerView reviewRecyclerView;
     private ReviewAdapter mReviewAdapter;
-    private List<Review> mReviewList = new ArrayList<>();
+    private List<Review> mReviewList ;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mReviewList = new ArrayList<>();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_description);
         ButterKnife.bind(this);
@@ -83,25 +79,25 @@ public class Description extends AppCompatActivity {
                 .build();
 
         mService = mRetrofit.create(MyWebService.class);
-        mService.discoverReview(mResults.getId(), Constants.MOVIEDB_APIKEY).enqueue(new Callback<Review>() {
+        mService.discoverReview("100", Constants.MOVIEDB_APIKEY).enqueue(new Callback<ReviewResponse>() {
             @Override
-            public void onResponse(Call<Review> call, Response<Review> response) {
+            public void onResponse(@NonNull Call<ReviewResponse> call,@NonNull Response<ReviewResponse> response) {
                 if (response.body() != null) {
                     mReviewList.clear();
-
-                    mReviewList.addAll(response.body().getReviews());
+//                    mReviewList.addAll(response.body().getResults());
+                    mReviewAdapter = new ReviewAdapter(response.body().getResults());
                     mReviewAdapter.notifyDataSetChanged();
                     reviewRecyclerView.setVisibility(View.VISIBLE);
 //                       mProgressView.stopAndGone();
-                    Toast.makeText(getApplicationContext(), "response done", Toast.LENGTH_SHORT);
+                    Toast.makeText(getApplicationContext(), "response done", Toast.LENGTH_SHORT).show();
                 }
 
 
             }
 
             @Override
-            public void onFailure(Call<Review> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), " failure", Toast.LENGTH_SHORT);
+            public void onFailure(Call<ReviewResponse> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), " failure", Toast.LENGTH_SHORT).show();
 
             }
         });

@@ -13,6 +13,7 @@ public class Movie
     private String total_pages;
     private String total_results;
 
+
     public List<Results> getResults ()
     {
         return results;
