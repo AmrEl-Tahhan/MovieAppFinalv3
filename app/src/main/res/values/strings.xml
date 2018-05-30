@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">MovieAppFinal Stage1</string>
+    <string name="plot_synopsis">Plot Synopsis</string>
+    <string name="user_rating">User Rating</string>
+    <string name="release_date">Release Date</string>
+    <string name="action_sort">action_sort</string>
+    <string name="sort_by">Sort By</string>
+    <string name="main_sort_most_popular">Most popular</string>
+    <string name="main_sort_highest_rated">Top Rated</string>
+    <string name="NoNetwork">Please check your internet connection and try again</string>
+</resources>
