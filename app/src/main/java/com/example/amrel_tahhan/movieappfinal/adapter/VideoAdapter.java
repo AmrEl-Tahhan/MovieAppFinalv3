@@ -8,12 +8,14 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.amrel_tahhan.movieappfinal.Constants;
 import com.example.amrel_tahhan.movieappfinal.Description;
 import com.example.amrel_tahhan.movieappfinal.R;
 import com.example.amrel_tahhan.movieappfinal.model.Video;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +49,21 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
         final Context context = holder.itemView.getContext();
         holder.videoLink.setText(Constants.baseVideo);
         holder.videoLink.append(videoList.get(position).getKey());
-         final String videoItem = holder.videoLink.toString();
+        // https://img.youtube.com/vi/dW1BIid8Osg/hqdefault.jpg
+        final String thumbnailBaseUrl = "https://img.youtube.com/vi/";
+        final String pathSize = "hqdefault.jpg"; // "mqdefault.jpg"
+
+        final Uri uri = Uri.parse(thumbnailBaseUrl).buildUpon()
+                .appendEncodedPath(videoList.get(position).getKey())
+                .appendEncodedPath(pathSize)
+                .build();
+
+        Picasso.with(context)
+                .load(uri.toString())
+                .placeholder(R.drawable.placeholder_video)
+                .into(holder.thumbnail);
+
+        final String videoItem = holder.videoLink.toString();
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -68,6 +84,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
     static class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView videoLink = itemView.findViewById(R.id.review_link);
+        ImageView thumbnail = itemView.findViewById(R.id.video_thumbnail);
 
 
 

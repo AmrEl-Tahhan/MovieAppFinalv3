@@ -28,6 +28,8 @@
         android:textColor="@android:color/black"
         android:adjustViewBounds="true"
         android:scaleType="centerCrop"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
 
         />
 

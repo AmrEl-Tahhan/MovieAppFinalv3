@@ -24,8 +24,7 @@ import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 
-import java.util.ArrayList;
-import java.util.List;
+
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -62,7 +61,7 @@ public class Description extends AppCompatActivity  {
 	RecyclerView videoRecyclerView;
 
 	ReviewAdapter mReviewAdapter;
-	VideoAdapter mVideoApapter ;
+	VideoAdapter mVideoAdapter ;
 
 	private Unbinder unbinder;
 
@@ -87,12 +86,13 @@ public class Description extends AppCompatActivity  {
 		mReviewAdapter = new ReviewAdapter();
 		reviewRecyclerView.setAdapter(mReviewAdapter);
 		reviewRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+		reviewRecyclerView.setNestedScrollingEnabled(false);
 	}
 
 	private void initVidRecyclerView() {
 		videoRecyclerView.setVisibility(View.GONE);
-		mVideoApapter = new VideoAdapter();
-		videoRecyclerView.setAdapter(mVideoApapter);
+		mVideoAdapter = new VideoAdapter();
+		videoRecyclerView.setAdapter(mVideoAdapter);
 		videoRecyclerView.setLayoutManager(new LinearLayoutManager(this));
 	}
 
@@ -150,7 +150,7 @@ public class Description extends AppCompatActivity  {
 
 				if (body != null) {
 
-					mVideoApapter.updateVideos(body.getResults());
+					mVideoAdapter.updateVideos(body.getResults());
 					Log.d("vidResponse", body.getResults().toString());
 					videoRecyclerView.setVisibility(View.VISIBLE);
 //                       mProgressView.stopAndGone();
