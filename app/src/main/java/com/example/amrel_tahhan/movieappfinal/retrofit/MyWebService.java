@@ -3,6 +3,7 @@ package com.example.amrel_tahhan.movieappfinal.retrofit;
 import com.example.amrel_tahhan.movieappfinal.model.Movie;
 import com.example.amrel_tahhan.movieappfinal.model.ReviewResponse;
 import com.example.amrel_tahhan.movieappfinal.model.Video;
+import com.example.amrel_tahhan.movieappfinal.model.VideoResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -31,6 +32,6 @@ public interface MyWebService {
     Call<ReviewResponse> discoverReview(@Path("id") String id, @Query("api_key") String apiKey);
 
     @GET("movie/{id}/videos")
-    Call<Video> discoverTrailer(@Path("id") String id, @Query("api_key") String apiKey);
+    Call<VideoResponse> discoverTrailer(@Path("id") String id, @Query("api_key") String apiKey);
 
 }

@@ -24,7 +24,7 @@ import java.util.List;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
 
-    private List<Results> Movies = new ArrayList<>();
+    private List<Results> Movies;
 
 
     public MovieAdapter(List<Results> movies) {

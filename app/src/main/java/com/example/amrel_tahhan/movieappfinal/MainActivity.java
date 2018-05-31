@@ -40,131 +40,125 @@ import retrofit2.converter.gson.GsonConverterFactory;
 // 4th https://www.youtube.com/watch?v=kmUGLURRPkI&t=9s
 
 public class MainActivity extends AppCompatActivity {
-    private static final int MAX_WIDTH_COL_DP = 200;
-    @BindView(R.id.recycler_view)
-    RecyclerView recyclerView;
-    private MovieAdapter movieAdapter;
-    private List<Results> mItemList = new ArrayList<>();
-    private String mSort = Constants.SORT_POPULAR;
-    @BindView(R.id.toolbar)
-    Toolbar toolbar ;
+	private static final int MAX_WIDTH_COL_DP = 200;
+	@BindView(R.id.recycler_view)
+	RecyclerView recyclerView;
+	private MovieAdapter movieAdapter;
+	private List<Results> mItemList = new ArrayList<>();
+	private String mSort = Constants.SORT_POPULAR;
+	@BindView(R.id.toolbar)
+	Toolbar toolbar;
 
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-        ButterKnife.bind(this);
-        if (isOnline()) {
-            toolbar.setTitle(R.string.app_name);
-            setSupportActionBar(toolbar);
-            recyclerView.setVisibility(View.GONE);
-            movieAdapter = new MovieAdapter(mItemList);
-            recyclerView.setAdapter(movieAdapter);
-            final StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-            recyclerView.setLayoutManager(mLayoutManager);
-            //change span dynamically based on screen width
-            recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(
-                    new ViewTreeObserver.OnGlobalLayoutListener() {
-                        @Override
-                        public void onGlobalLayout() {
-                            int viewWidth = recyclerView.getMeasuredWidth();
-                            float cardViewWidth = MAX_WIDTH_COL_DP * getResources().getDisplayMetrics().density;
-                            int newSpanCount = Math.max(2, (int) Math.floor(viewWidth / cardViewWidth));
-                            mLayoutManager.setSpanCount(newSpanCount);
-                            mLayoutManager.requestLayout();
-                        }
-                    });
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.activity_main);
+		ButterKnife.bind(this);
+		if (isOnline()) {
+			toolbar.setTitle(R.string.app_name);
+			setSupportActionBar(toolbar);
+			recyclerView.setVisibility(View.GONE);
+			movieAdapter = new MovieAdapter(mItemList);
+			recyclerView.setAdapter(movieAdapter);
+			final StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+			recyclerView.setLayoutManager(mLayoutManager);
+			//change span dynamically based on screen width
+			recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(
+					new ViewTreeObserver.OnGlobalLayoutListener() {
+						@Override
+						public void onGlobalLayout() {
+							int viewWidth = recyclerView.getMeasuredWidth();
+							float cardViewWidth = MAX_WIDTH_COL_DP * getResources().getDisplayMetrics().density;
+							int newSpanCount = Math.max(2, (int) Math.floor(viewWidth / cardViewWidth));
+							mLayoutManager.setSpanCount(newSpanCount);
+							mLayoutManager.requestLayout();
+						}
+					});
 
-            requestData();
-        } else {
-            Intent intent = new Intent(getApplicationContext(),NoNetworkAccessActivity.class);
-            startActivity(intent);
+			requestData();
+		} else {
+			Intent intent = new Intent(getApplicationContext(), NoNetworkAccessActivity.class);
+			startActivity(intent);
 
-        }
+		}
+	}
 
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.menu_main, menu);
+		return true;
+	}
 
-    }
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.action_sort) {
+			showSortDialog();
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
+			return true;
+		} else {
+			return super.onOptionsItemSelected(item);
+		}
+	}
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_sort) {
-            showSortDialog();
+	private void showSortDialog() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.sort_by)
+				.setSingleChoiceItems(
+						new String[]{getString(R.string.main_sort_most_popular),
+								getString((R.string.main_sort_highest_rated))},
+						(mSort.equals(Constants.SORT_POPULAR)) ? 0 : 1,
+						new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								mSort = (which == 0) ? Constants.SORT_POPULAR : Constants.SORT_HIGHEST_RATED;
+								requestData();
+								dialog.dismiss();
+							}
+						});
+		builder.create().show();
+	}
 
-            return true;
-        } else {
-            return super.onOptionsItemSelected(item);
-        }
-    }
+	private void requestData() {
+		Retrofit mRetrofit;
+		MyWebService mService;
 
-    private void showSortDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.sort_by)
-                .setSingleChoiceItems(
-                        new String[]{getString(R.string.main_sort_most_popular),
-                                getString((R.string.main_sort_highest_rated))},
-                        (mSort.equals(Constants.SORT_POPULAR)) ? 0 : 1,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                mSort = (which == 0) ? Constants.SORT_POPULAR : Constants.SORT_HIGHEST_RATED;
-                                requestData();
-                                dialog.dismiss();
-                            }
-                        });
-        builder.create().show();
-    }
+		mRetrofit = new Retrofit.Builder()
+				.baseUrl(Constants.BASE_API_URL)
+				.addConverterFactory(GsonConverterFactory.create(new Gson()))
+				.build();
 
+		mService = mRetrofit.create(MyWebService.class);
+		mService.discoverMovie(Constants.MOVIEDB_APIKEY, mSort).enqueue(new Callback<Movie>() {
+			@Override
+			public void onResponse(Call<Movie> call, Response<Movie> response) {
 
-    private void requestData() {
-        Retrofit mRetrofit;
-        MyWebService mService;
+				Movie body = response.body();
 
-        mRetrofit = new Retrofit.Builder()
-                .baseUrl(Constants.BASE_API_URL)
-                .addConverterFactory(GsonConverterFactory.create(new Gson()))
-                .build();
+				if (body != null) {
 
-        mService = mRetrofit.create(MyWebService.class);
-        mService.discoverMovie(Constants.MOVIEDB_APIKEY, mSort).enqueue(new Callback<Movie>() {
-            @Override
-            public void onResponse(Call<Movie> call, Response<Movie> response) {
-                if (response.body() != null) {
-                    mItemList.clear();
+					mItemList.clear();
+					mItemList.addAll(body.getResults());
+					movieAdapter.notifyDataSetChanged();
 
-                    mItemList.addAll(response.body().getResults());
-                    movieAdapter.notifyDataSetChanged();
-
-
-                    recyclerView.setVisibility(View.VISIBLE);
+					recyclerView.setVisibility(View.VISIBLE);
 //                       mProgressView.stopAndGone();
-                    Toast.makeText(getApplicationContext(), "response done", Toast.LENGTH_SHORT).show();
-                }
+					Toast.makeText(getApplicationContext(), "response done", Toast.LENGTH_SHORT).show();
+				}
+			}
 
+			@Override
+			public void onFailure(Call<Movie> call, Throwable t) {
+				Toast.makeText(getApplicationContext(), " failure", Toast.LENGTH_SHORT);
 
-            }
+			}
+		});
+	}
 
-            @Override
-            public void onFailure(Call<Movie> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), " failure", Toast.LENGTH_SHORT);
-
-            }
-        });
-
-    }
-
-    public boolean isOnline() {
-        ConnectivityManager cm =
-                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return netInfo != null && netInfo.isConnectedOrConnecting();
-    }
-
-
+	public boolean isOnline() {
+		ConnectivityManager cm =
+				(ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+		NetworkInfo netInfo = cm.getActiveNetworkInfo();
+		return netInfo != null && netInfo.isConnectedOrConnecting();
+	}
 }
 

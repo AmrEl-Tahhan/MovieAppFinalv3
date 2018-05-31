@@ -37,26 +37,12 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
         notifyDataSetChanged();
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
-
-        TextView reviewAuthor = itemView.findViewById(R.id.item_author);
-
-        TextView reviewContent = itemView.findViewById(R.id.item_content);
-        View viewHolderView;
-
-        public ViewHolder(View itemView) {
-            super(itemView);
-            viewHolderView = itemView;
-        }
-    }
-
     @Override
     public ReviewAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.review_item, parent, true);
-        ViewHolder viewHolder = new ViewHolder(v);
+                .inflate(R.layout.review_item, parent, false);
 
-        return viewHolder;
+        return new ViewHolder(v);
 
     }
 
@@ -64,16 +50,22 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
     public void onBindViewHolder(ReviewAdapter.ViewHolder holder, int position) {
         holder.reviewAuthor.setText(reviewList.get(position).getAuthor());
         holder.reviewContent.setText(reviewList.get(position).getContent());
-
-
-
-
-
     }
 
     @Override
     public int getItemCount() {
         return reviewList.size();
+    }
+
+    static class ViewHolder extends RecyclerView.ViewHolder {
+
+        TextView reviewAuthor = itemView.findViewById(R.id.item_author);
+
+        TextView reviewContent = itemView.findViewById(R.id.item_content);
+
+        ViewHolder(View itemView) {
+            super(itemView);
+        }
     }
 
 
