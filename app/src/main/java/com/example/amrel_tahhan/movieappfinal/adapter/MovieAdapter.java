@@ -12,9 +12,9 @@ import android.widget.TextView;
 import com.example.amrel_tahhan.movieappfinal.Constants;
 import com.example.amrel_tahhan.movieappfinal.Description;
 import com.example.amrel_tahhan.movieappfinal.R;
-import com.example.amrel_tahhan.movieappfinal.model.Results;
+import com.example.amrel_tahhan.movieappfinal.model.Movie;
 import com.squareup.picasso.Picasso;
-import java.util.ArrayList;
+
 import java.util.List;
 
 
@@ -24,10 +24,10 @@ import java.util.List;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
 
-    private List<Results> Movies;
+    private List<Movie> Movies;
 
 
-    public MovieAdapter(List<Results> movies) {
+    public MovieAdapter(List<Movie> movies) {
         Movies = movies;
     }
 
@@ -56,7 +56,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> 
 
     @Override
     public void onBindViewHolder(MovieAdapter.ViewHolder holder, int position) {
-        final Results movieItem = Movies.get(position);
+        final Movie movieItem = Movies.get(position);
         final Context context = holder.viewHolderView.getContext();
 
         holder.ItemTitle.setText(movieItem.getTitle());

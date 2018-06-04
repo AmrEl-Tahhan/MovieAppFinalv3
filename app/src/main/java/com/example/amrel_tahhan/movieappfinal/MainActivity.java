@@ -18,8 +18,8 @@ import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import com.example.amrel_tahhan.movieappfinal.adapter.MovieAdapter;
+import com.example.amrel_tahhan.movieappfinal.model.MovieResponse;
 import com.example.amrel_tahhan.movieappfinal.model.Movie;
-import com.example.amrel_tahhan.movieappfinal.model.Results;
 import com.example.amrel_tahhan.movieappfinal.retrofit.MyWebService;
 import com.google.gson.Gson;
 
@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 	@BindView(R.id.recycler_view)
 	RecyclerView recyclerView;
 	private MovieAdapter movieAdapter;
-	private List<Results> mItemList = new ArrayList<>();
+	private List<Movie> mItemList = new ArrayList<>();
 	private String mSort = Constants.SORT_POPULAR;
 	@BindView(R.id.toolbar)
 	Toolbar toolbar;
@@ -128,11 +128,11 @@ public class MainActivity extends AppCompatActivity {
 				.build();
 
 		mService = mRetrofit.create(MyWebService.class);
-		mService.discoverMovie(Constants.MOVIEDB_APIKEY, mSort).enqueue(new Callback<Movie>() {
+		mService.discoverMovie(Constants.MOVIEDB_APIKEY, mSort).enqueue(new Callback<MovieResponse>() {
 			@Override
-			public void onResponse(Call<Movie> call, Response<Movie> response) {
+			public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
 
-				Movie body = response.body();
+				MovieResponse body = response.body();
 
 				if (body != null) {
 
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
 			}
 
 			@Override
-			public void onFailure(Call<Movie> call, Throwable t) {
+			public void onFailure(Call<MovieResponse> call, Throwable t) {
 				Toast.makeText(getApplicationContext(), " failure", Toast.LENGTH_SHORT);
 
 			}

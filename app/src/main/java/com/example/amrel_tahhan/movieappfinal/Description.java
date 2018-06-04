@@ -1,7 +1,5 @@
 package com.example.amrel_tahhan.movieappfinal;
 
-import android.content.Intent;
-import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,8 +13,7 @@ import android.widget.Toast;
 
 import com.example.amrel_tahhan.movieappfinal.adapter.ReviewAdapter;
 import com.example.amrel_tahhan.movieappfinal.adapter.VideoAdapter;
-import com.example.amrel_tahhan.movieappfinal.model.Results;
-import com.example.amrel_tahhan.movieappfinal.model.Review;
+import com.example.amrel_tahhan.movieappfinal.model.Movie;
 import com.example.amrel_tahhan.movieappfinal.model.ReviewResponse;
 import com.example.amrel_tahhan.movieappfinal.model.VideoResponse;
 import com.example.amrel_tahhan.movieappfinal.retrofit.MyWebService;
@@ -52,7 +49,7 @@ public class Description extends AppCompatActivity  {
 	@BindView(R.id.release_date)
 	TextView releaseDate;
 
-	private Results mResults;
+	private Movie mMovie;
 
 	// recycler view fields
 	@BindView(R.id.review_recycler_view)
@@ -71,8 +68,8 @@ public class Description extends AppCompatActivity  {
 		setContentView(R.layout.activity_description);
 
 		unbinder = ButterKnife.bind(this);
-		mResults = getIntent().getParcelableExtra("movieItem");
-		setTitle(mResults.getTitle());
+		mMovie = getIntent().getParcelableExtra("movieItem");
+		setTitle(mMovie.getTitle());
 		populateUI();
 		//recyclerView
         retrieveVideos();
@@ -106,7 +103,7 @@ public class Description extends AppCompatActivity  {
 				.build();
 
 		mService = mRetrofit.create(MyWebService.class);
-		mService.discoverReview(mResults.getId(), Constants.MOVIEDB_APIKEY).enqueue(new Callback<ReviewResponse>() {
+		mService.discoverReview(mMovie.getId(), Constants.MOVIEDB_APIKEY).enqueue(new Callback<ReviewResponse>() {
 			@Override
 			public void onResponse(@NonNull Call<ReviewResponse> call, @NonNull Response<ReviewResponse> response) {
 
@@ -142,7 +139,7 @@ public class Description extends AppCompatActivity  {
 				.build();
 
 		vService = vRetrofit.create(MyWebService.class);
-		vService.discoverTrailer(mResults.getId(), Constants.MOVIEDB_APIKEY).enqueue(new Callback<VideoResponse>() {
+		vService.discoverTrailer(mMovie.getId(), Constants.MOVIEDB_APIKEY).enqueue(new Callback<VideoResponse>() {
 			@Override
 			public void onResponse(@NonNull Call<VideoResponse> call, @NonNull Response<VideoResponse> response) {
 
@@ -169,13 +166,13 @@ public class Description extends AppCompatActivity  {
 	}
 
 	private void populateUI() {
-		originalTitle.setText(mResults.getOriginal_title());
+		originalTitle.setText(mMovie.getOriginal_title());
 		//set release date
-		releaseDate.setText(mResults.getRelease_date());
-		userRating.setText(mResults.getVote_average());
+		releaseDate.setText(mMovie.getRelease_date());
+		userRating.setText(mMovie.getVote_average());
 		userRating.append("/10");
-		plotSynopsis.setText(mResults.getOverview());
-		Picasso.with(this).load(Constants.ROOT_BACKDROP_IMAGE_URL + mResults.getBackdrop_path())
+		plotSynopsis.setText(mMovie.getOverview());
+		Picasso.with(this).load(Constants.ROOT_BACKDROP_IMAGE_URL + mMovie.getBackdrop_path())
 				.error(R.color.colorPrimary).placeholder(R.color.colorAccent).into(Backdrop);
 	}
 
