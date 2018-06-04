@@ -1,9 +1,13 @@
 
 package com.example.amrel_tahhan.movieappfinal.model;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
+@Entity
 public class Review {
 
     @SerializedName("author")
@@ -13,7 +17,7 @@ public class Review {
     @Expose
     private String content;
     @SerializedName("id")
-    @Expose
+    @Expose @PrimaryKey @NonNull
     private String id;
     @SerializedName("url")
     @Expose

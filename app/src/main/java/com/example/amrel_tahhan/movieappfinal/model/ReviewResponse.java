@@ -1,20 +1,24 @@
 
 package com.example.amrel_tahhan.movieappfinal.model;
 
+import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
+import android.arch.persistence.room.PrimaryKey;
+
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-
+@Entity
 public class ReviewResponse {
 
     @SerializedName("id")
-    @Expose
+    @Expose @PrimaryKey
     private int id;
     @SerializedName("page")
     @Expose
     private int page;
     @SerializedName("results")
-    @Expose
+    @Expose @Ignore
     private List<Review> results = null;
     @SerializedName("total_pages")
     @Expose
