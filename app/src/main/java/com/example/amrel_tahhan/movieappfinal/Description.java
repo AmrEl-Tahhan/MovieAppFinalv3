@@ -62,9 +62,8 @@ public class Description extends AppCompatActivity {
     VideoAdapter mVideoAdapter;
 
     private Unbinder unbinder;
-    final Movie favoriteMovie = new Movie(mMovie.getVote_average(), mMovie.getBackdrop_path(), mMovie.getId(), mMovie.getTitle()
-            , mMovie.getOverview(), mMovie.getRelease_date(), mMovie.getOriginal_title(),
-            mMovie.getVote_count(), mMovie.getPoster_path(), mMovie.getVideo());
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,6 +71,8 @@ public class Description extends AppCompatActivity {
         setContentView(R.layout.activity_description);
         unbinder = ButterKnife.bind(this);
         mMovie = getIntent().getParcelableExtra("movieItem");
+
+
         setTitle(mMovie.getTitle());
         populateUI();
         //recyclerView
@@ -190,9 +191,9 @@ public class Description extends AppCompatActivity {
 
 
     public void saveFavorite() {
-//        final Movie favoriteMovie = new Movie(mMovie.getVote_average(), mMovie.getBackdrop_path(), mMovie.getId(), mMovie.getTitle()
-//                , mMovie.getOverview(), mMovie.getRelease_date(), mMovie.getOriginal_title(),
-//                mMovie.getVote_count(), mMovie.getPoster_path(), mMovie.getVideo());
+        final Movie favoriteMovie = new Movie(mMovie.getVote_average(), mMovie.getBackdrop_path(), mMovie.getId(), mMovie.getTitle()
+                , mMovie.getOverview(), mMovie.getRelease_date(), mMovie.getOriginal_title(),
+                mMovie.getVote_count(), mMovie.getPoster_path(), mMovie.getVideo());
         final MovieDatabase database = MovieDatabase.getInstanse(this);
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
@@ -204,9 +205,9 @@ public class Description extends AppCompatActivity {
     }
 
     public void deleteFavorite() {
-//        final Movie favoriteMovie = new Movie(mMovie.getVote_average(), mMovie.getBackdrop_path(), mMovie.getId(), mMovie.getTitle()
-//                , mMovie.getOverview(), mMovie.getRelease_date(), mMovie.getOriginal_title(),
-//                mMovie.getVote_count(), mMovie.getPoster_path(), mMovie.getVideo());
+        final Movie favoriteMovie = new Movie(mMovie.getVote_average(), mMovie.getBackdrop_path(), mMovie.getId(), mMovie.getTitle()
+                , mMovie.getOverview(), mMovie.getRelease_date(), mMovie.getOriginal_title(),
+                mMovie.getVote_count(), mMovie.getPoster_path(), mMovie.getVideo());
 
         final MovieDatabase database = MovieDatabase.getInstanse(this);
 
@@ -220,12 +221,16 @@ public class Description extends AppCompatActivity {
     }
 
     public void onFabClickHandler(View view) {
-
         final MovieDatabase database = MovieDatabase.getInstanse(this);
-        if (mMovie.getId().equals(database.movieDao().loadMovieById(Integer.valueOf(mMovie.getId()))))
-            deleteFavorite();
+        if (database.movieDao().loadMovieById(Integer.valueOf(mMovie.getId()))!=null )
+        {  deleteFavorite();
+            Toast.makeText(getApplicationContext(), "movie deleted", Toast.LENGTH_SHORT).show();}
         else {
             saveFavorite();
-        Toast.makeText(getApplicationContext(), "movie saved", Toast.LENGTH_SHORT).show();}
+            Toast.makeText(getApplicationContext(), "movie saved", Toast.LENGTH_SHORT).show();}
+
+
     }
+
+
 }
