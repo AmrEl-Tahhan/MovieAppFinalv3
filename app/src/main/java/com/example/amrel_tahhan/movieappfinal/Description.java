@@ -200,7 +200,8 @@ public void addMovieToDB () {
 	});
 }
 	Movie movie = new Movie(mMovie.getVote_average(), mMovie.getBackdrop_path(), mMovie.getId(), mMovie.getTitle()
-			, mMovie.getOverview(),mMovie.getRelease_date(), mMovie.getOriginal_title(), mMovie.getVote_count(), mMovie.getPoster_path(), mMovie.getVideo()) ;
+			, mMovie.getOverview(),mMovie.getRelease_date(), mMovie.getOriginal_title(),
+			mMovie.getVote_count(), mMovie.getPoster_path(), mMovie.getVideo()) ;
 
 
 }
