@@ -36,6 +36,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Description extends AppCompatActivity  {
     MovieDatabase mDb ;
+	private Movie mMovie;
+
 	@BindView(R.id.backdrop_ip)
 	ImageView Backdrop;
 
@@ -51,7 +53,7 @@ public class Description extends AppCompatActivity  {
 	@BindView(R.id.release_date)
 	TextView releaseDate;
 
-	private Movie mMovie;
+
 
 	// recycler view fields
 	@BindView(R.id.review_recycler_view)
@@ -68,7 +70,6 @@ public class Description extends AppCompatActivity  {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_description);
-
 		unbinder = ButterKnife.bind(this);
 		mMovie = getIntent().getParcelableExtra("movieItem");
 		setTitle(mMovie.getTitle());
@@ -194,11 +195,12 @@ public void addMovieToDB () {
 	AppExecutors.getInstance().diskIO().execute(new Runnable() {
 		@Override
 		public void run() {
-			mDb.movieDao().insertMovie(mMovie);
+			mDb.movieDao().insertMovie(movie);
 		}
 	});
-
-
 }
+	Movie movie = new Movie(mMovie.getVote_average(), mMovie.getBackdrop_path(), mMovie.getId(), mMovie.getTitle()
+			, mMovie.getOverview(),mMovie.getRelease_date(), mMovie.getOriginal_title(), mMovie.getVote_count(), mMovie.getPoster_path(), mMovie.getVideo()) ;
+
 
 }

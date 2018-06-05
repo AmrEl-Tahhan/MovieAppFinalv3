@@ -147,6 +147,18 @@ public class Movie implements Parcelable {
     public Movie() {
     }
 
+    public Movie(String vote_average, String backdrop_path,  @NonNull String id, String title, String overview, String release_date, String original_title, String vote_count, String poster_path, String video) {
+        this.vote_average = vote_average;
+        this.backdrop_path = backdrop_path;
+        this.id = id;
+        this.title = title;
+        this.overview = overview;
+        this.release_date = release_date;
+        this.original_title = original_title;
+        this.vote_count = vote_count;
+        this.poster_path = poster_path;
+        this.video = video;
+    }
 
     @Override
     public int describeContents() {
