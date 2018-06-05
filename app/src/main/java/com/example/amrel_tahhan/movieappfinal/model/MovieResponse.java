@@ -10,12 +10,9 @@ import java.util.List;
 /**
  * Created by Amr El-Tahhan on 2/28/2018.
  */
-@Entity
 public class MovieResponse
 {
-    @Ignore
     private List<Movie> results;
-    @PrimaryKey @NonNull
     private String page;
     private String total_pages;
     private String total_results;

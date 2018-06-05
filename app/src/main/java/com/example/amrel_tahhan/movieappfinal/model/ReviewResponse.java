@@ -8,17 +8,16 @@ import android.arch.persistence.room.PrimaryKey;
 import java.util.List;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
-@Entity
 public class ReviewResponse {
 
     @SerializedName("id")
-    @Expose @PrimaryKey
+    @Expose
     private int id;
     @SerializedName("page")
     @Expose
     private int page;
     @SerializedName("results")
-    @Expose @Ignore
+    @Expose
     private List<Review> results = null;
     @SerializedName("total_pages")
     @Expose

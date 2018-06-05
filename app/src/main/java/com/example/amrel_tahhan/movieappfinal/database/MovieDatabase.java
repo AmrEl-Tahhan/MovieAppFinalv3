@@ -15,7 +15,7 @@ import com.example.amrel_tahhan.movieappfinal.model.VideoResponse;
 /**
  * Created by Amr El-Tahhan on 6/4/2018.
  */
-@Database(entities = {Movie.class, MovieResponse.class, Review.class, ReviewResponse.class, Video.class, VideoResponse.class}
+@Database(entities = {Movie.class, Review.class, Video.class}
         , version = 1, exportSchema = false)
 public abstract class MovieDatabase extends RoomDatabase {
     private static final String DATABASE_NAME = "MovieDB";

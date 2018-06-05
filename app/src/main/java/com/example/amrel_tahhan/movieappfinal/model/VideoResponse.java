@@ -10,10 +10,10 @@ import com.google.gson.annotations.SerializedName;
 public class VideoResponse {
 
     @SerializedName("id")
-    @Expose @PrimaryKey
+    @Expose
     private int id;
     @SerializedName("results")
-    @Expose @Ignore
+    @Expose
     private List<Video> results = null;
 
     public int getId() {
