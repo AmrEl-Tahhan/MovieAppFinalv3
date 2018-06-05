@@ -11,7 +11,7 @@ public class Constants {
     public final static String SORT_HIGHEST_RATED = "vote_average.desc";
 
     //TODO INSERT APIKEY
-    public final static String MOVIEDB_APIKEY = "0f02ef1fcb6f9f8b5d41a906f992a27a";
+    public final static String MOVIEDB_APIKEY = "api_key";
 
     public final static String BASE_API_URL = "http://api.themoviedb.org/3/";
     public final static String ROOT_POSTER_IMAGE_URL = "http://image.tmdb.org/t/p/w185";
