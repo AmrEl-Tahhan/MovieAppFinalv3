@@ -10,7 +10,7 @@ public class Video {
 
     @SerializedName("id")
     @Expose @PrimaryKey @NonNull
-    private String id;
+    private Integer id;
     @SerializedName("iso_639_1")
     @Expose
     private String iso6391;
@@ -33,11 +33,11 @@ public class Video {
     @Expose
     private String type;
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 

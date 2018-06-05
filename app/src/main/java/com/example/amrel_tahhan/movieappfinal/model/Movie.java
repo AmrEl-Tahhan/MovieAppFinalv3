@@ -18,7 +18,7 @@ public class Movie implements Parcelable {
 
     private String adult;
 @PrimaryKey @NonNull
-    private String id;
+    private Integer id;
 
     private String title;
 
@@ -51,7 +51,7 @@ public class Movie implements Parcelable {
         return adult;
     }
 
-    public String getId() {
+    public Integer getId() {
         return id;
     }
 
@@ -104,7 +104,7 @@ public class Movie implements Parcelable {
         this.adult = adult;
     }
 
-    public void setId(String id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -147,7 +147,7 @@ public class Movie implements Parcelable {
     public Movie() {
     }
 
-    public Movie(String vote_average, String backdrop_path,  @NonNull String id, String title, String overview, String release_date, String original_title, String vote_count, String poster_path, String video) {
+    public Movie(String vote_average, String backdrop_path,  @NonNull Integer id, String title, String overview, String release_date, String original_title, String vote_count, String poster_path, String video) {
         this.vote_average = vote_average;
         this.backdrop_path = backdrop_path;
         this.id = id;
@@ -170,7 +170,7 @@ public class Movie implements Parcelable {
         dest.writeString(this.vote_average);
         dest.writeString(this.backdrop_path);
         dest.writeString(this.adult);
-        dest.writeString(this.id);
+        dest.writeInt(this.id);
         dest.writeString(this.title);
         dest.writeString(this.overview);
         dest.writeString(this.original_language);
@@ -188,7 +188,7 @@ public class Movie implements Parcelable {
         this.vote_average = in.readString();
         this.backdrop_path = in.readString();
         this.adult = in.readString();
-        this.id = in.readString();
+        this.id = in.readInt();
         this.title = in.readString();
         this.overview = in.readString();
         this.original_language = in.readString();
