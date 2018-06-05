@@ -13,10 +13,12 @@ import android.widget.Toast;
 
 import com.example.amrel_tahhan.movieappfinal.adapter.ReviewAdapter;
 import com.example.amrel_tahhan.movieappfinal.adapter.VideoAdapter;
+import com.example.amrel_tahhan.movieappfinal.database.MovieDatabase;
 import com.example.amrel_tahhan.movieappfinal.model.Movie;
 import com.example.amrel_tahhan.movieappfinal.model.ReviewResponse;
 import com.example.amrel_tahhan.movieappfinal.model.VideoResponse;
 import com.example.amrel_tahhan.movieappfinal.retrofit.MyWebService;
+import com.example.amrel_tahhan.movieappfinal.viewmodel.AppExecutors;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
@@ -33,7 +35,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Description extends AppCompatActivity  {
-
+    MovieDatabase mDb ;
 	@BindView(R.id.backdrop_ip)
 	ImageView Backdrop;
 
@@ -184,5 +186,19 @@ public class Description extends AppCompatActivity  {
 		super.onDestroy();
 	}
 
+
+	public void onFabClickHandler(View view) {
+addMovieToDB();
+	}
+public void addMovieToDB () {
+	AppExecutors.getInstance().diskIO().execute(new Runnable() {
+		@Override
+		public void run() {
+			mDb.movieDao().insertMovie(mMovie);
+		}
+	});
+
+
+}
 
 }

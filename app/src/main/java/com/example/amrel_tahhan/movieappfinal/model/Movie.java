@@ -9,7 +9,8 @@ import android.support.annotation.NonNull;
 /**
  * Created by Amr El-Tahhan on 2/28/2018.
  */
-@Entity
+
+@Entity (tableName = "favorite_movies")
 public class Movie implements Parcelable {
     private String vote_average;
 
@@ -145,6 +146,7 @@ public class Movie implements Parcelable {
 
     public Movie() {
     }
+
 
     @Override
     public int describeContents() {

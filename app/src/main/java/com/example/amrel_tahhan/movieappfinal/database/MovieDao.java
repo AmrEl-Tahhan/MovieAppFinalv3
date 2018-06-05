@@ -1,6 +1,8 @@
 package com.example.amrel_tahhan.movieappfinal.database;
 
+import android.arch.lifecycle.LiveData;
 import android.arch.persistence.room.Dao;
+import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
 
@@ -17,26 +19,39 @@ import java.util.List;
  */
 @Dao
 public interface MovieDao {
-    @Query("Select * From MovieResponse ")
-    List<Movie> gettAllFavouriteMovies() ;
+//    @Query("Select * From MovieResponse ")
+//    List<Movie> gettAllFavouriteMovies() ;
+//
+//    @Query("Select * From Movie Where id = :movieID")
+//    Movie getsingleMovie (String movieID);
+//
+//    @Query("Select * From ReviewResponse Where id = :movieID")
+//    List<Review> getAllReviews (String movieID);
+//
+//    @Query("Select * From MovieResponse Where id = :movieID")
+//    List<Video> getAllTrailers (String movieID);
+//
+//    @Insert()
+//    void addMovie(Movie movie);
+//
+//    @Insert()
+//    void addreviews (ReviewResponse reviewResponse);
+//
+//    @Insert()
+//    void addTrailers (VideoResponse videoResponse);
 
-    @Query("Select * From Movie Where id = :movieID")
-    Movie getsingleMovie (String movieID);
+    @Query("SELECT * FROM favorite_movies ORDER BY title")
+    LiveData<List<Movie>> loadAllMovies();
 
-    @Query("Select * From ReviewResponse Where id = :movieID")
-    List<Review> getAllReviews (String movieID);
+    @Insert
+    void insertMovie(Movie movie);
 
-    @Query("Select * From MovieResponse Where id = :movieID")
-    List<Video> getAllTrailers (String movieID);
+    @Delete
+    void deleteMovie(Movie movie);
 
-    @Insert()
-    void addMovie(Movie movie);
-
-    @Insert()
-    void addreviews (ReviewResponse reviewResponse);
-
-    @Insert()
-    void addTrailers (VideoResponse videoResponse);
-
-
+    @Query("SELECT * FROM favorite_movies WHERE id = :id")
+    LiveData<Movie> loadMovieById(int id);
 }
+
+
+
