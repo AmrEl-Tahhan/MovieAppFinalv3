@@ -188,20 +188,46 @@ public class Description extends AppCompatActivity  {
 	}
 
 
-	public void onFabClickHandler(View view) {
-addMovieToDB();
+
+
+
+
+
+	public void saveFavorite() {
+		final Movie favoriteMovie = new Movie(mMovie.getVote_average(), mMovie.getBackdrop_path(), mMovie.getId(), mMovie.getTitle()
+				, mMovie.getOverview(),mMovie.getRelease_date(), mMovie.getOriginal_title(),
+				mMovie.getVote_count(), mMovie.getPoster_path(), mMovie.getVideo()) ;
+
+		final MovieDatabase database = MovieDatabase.getInstanse(this);
+
+		AppExecutors.getInstance().diskIO().execute(new Runnable() {
+			@Override
+			public void run() {
+				//if (!(movie.getId().equals(database.movieDao().loadMovieById(movie.getId()).getValue().getId()))) {
+				database.movieDao().insertMovie(favoriteMovie);
+				//}
+			}
+		});
 	}
-public void addMovieToDB () {
-	AppExecutors.getInstance().diskIO().execute(new Runnable() {
-		@Override
-		public void run() {
-			mDb.movieDao().insertMovie(movie);
-		}
-	});
-}
-	Movie movie = new Movie(mMovie.getVote_average(), mMovie.getBackdrop_path(), mMovie.getId(), mMovie.getTitle()
-			, mMovie.getOverview(),mMovie.getRelease_date(), mMovie.getOriginal_title(),
-			mMovie.getVote_count(), mMovie.getPoster_path(), mMovie.getVideo()) ;
 
+	private void deleteFavorite() {
+		final Movie favoriteMovie = new Movie(mMovie.getVote_average(), mMovie.getBackdrop_path(), mMovie.getId(), mMovie.getTitle()
+				, mMovie.getOverview(),mMovie.getRelease_date(), mMovie.getOriginal_title(),
+				mMovie.getVote_count(), mMovie.getPoster_path(), mMovie.getVideo()) ;
+		final MovieDatabase database = MovieDatabase.getInstanse(this);
 
+		AppExecutors.getInstance().diskIO().execute(new Runnable() {
+			@Override
+			public void run() {
+				//if (movie.getId().equals(database.movieDao().loadMovieById(movie.getId()).getValue().getId())) {
+				database.movieDao().deleteMovie(favoriteMovie);
+				//}
+			}
+		});
+	}
+
+	public void onFabClickHandler(View view) {
+		saveFavorite();
+		 Toast.makeText(getApplicationContext(),"movie saved",Toast.LENGTH_SHORT).show();
+	}
 }
