@@ -18,7 +18,7 @@ public class Review {
     private String content;
     @SerializedName("id")
     @Expose @PrimaryKey @NonNull
-    private Integer id;
+    private String id;
     @SerializedName("url")
     @Expose
     private String url;
@@ -39,11 +39,11 @@ public class Review {
         this.content = content;
     }
 
-    public Integer getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(String id) {
         this.id = id;
     }
 

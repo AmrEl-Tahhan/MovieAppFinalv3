@@ -142,7 +142,7 @@ public class Description extends AppCompatActivity  {
 				.build();
 
 		vService = vRetrofit.create(MyWebService.class);
-		vService.discoverTrailer(mMovie.getId().toString(), Constants.MOVIEDB_APIKEY).enqueue(new Callback<VideoResponse>() {
+		vService.discoverTrailer(mMovie.getId(), Constants.MOVIEDB_APIKEY).enqueue(new Callback<VideoResponse>() {
 			@Override
 			public void onResponse(@NonNull Call<VideoResponse> call, @NonNull Response<VideoResponse> response) {
 
@@ -189,10 +189,6 @@ public class Description extends AppCompatActivity  {
 
 
 
-
-
-
-
 	public void saveFavorite() {
 		final Movie favoriteMovie = new Movie(mMovie.getVote_average(), mMovie.getBackdrop_path(), mMovie.getId(), mMovie.getTitle()
 				, mMovie.getOverview(),mMovie.getRelease_date(), mMovie.getOriginal_title(),
@@ -203,30 +199,20 @@ public class Description extends AppCompatActivity  {
 		AppExecutors.getInstance().diskIO().execute(new Runnable() {
 			@Override
 			public void run() {
-				//if (!(movie.getId().equals(database.movieDao().loadMovieById(movie.getId()).getValue().getId()))) {
+                if (mMovie.getId().equals(database.movieDao().loadMovieById(Integer.valueOf(favoriteMovie.getId())))) {
+                    database.movieDao().deleteMovie(favoriteMovie);
+                }
+                else
 				database.movieDao().insertMovie(favoriteMovie);
-				//}
+
 			}
 		});
 	}
 
-	private void deleteFavorite() {
-		final Movie favoriteMovie = new Movie(mMovie.getVote_average(), mMovie.getBackdrop_path(), mMovie.getId(), mMovie.getTitle()
-				, mMovie.getOverview(),mMovie.getRelease_date(), mMovie.getOriginal_title(),
-				mMovie.getVote_count(), mMovie.getPoster_path(), mMovie.getVideo()) ;
-		final MovieDatabase database = MovieDatabase.getInstanse(this);
 
-		AppExecutors.getInstance().diskIO().execute(new Runnable() {
-			@Override
-			public void run() {
-				//if (movie.getId().equals(database.movieDao().loadMovieById(movie.getId()).getValue().getId())) {
-				database.movieDao().deleteMovie(favoriteMovie);
-				//}
-			}
-		});
-	}
 
 	public void onFabClickHandler(View view) {
+
 		saveFavorite();
 		 Toast.makeText(getApplicationContext(),"movie saved",Toast.LENGTH_SHORT).show();
 	}
