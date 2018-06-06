@@ -222,7 +222,7 @@ public class Description extends AppCompatActivity {
 
     public void onFabClickHandler(View view) {
         final MovieDatabase database = MovieDatabase.getInstanse(this);
-        if (database.movieDao().loadMovieById(Integer.valueOf(mMovie.getId()))!=null )
+        if (database.movieDao().loadMovieById(Integer.valueOf(mMovie.getId())).getValue()!=null )
         {  deleteFavorite();
             Toast.makeText(getApplicationContext(), "movie deleted", Toast.LENGTH_SHORT).show();}
         else {
