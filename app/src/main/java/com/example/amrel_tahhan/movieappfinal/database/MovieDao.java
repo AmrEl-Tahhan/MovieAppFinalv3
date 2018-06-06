@@ -31,10 +31,11 @@ public interface MovieDao {
     void deleteMovie(Movie movie);
 
     @Query("SELECT * FROM favorite_movies WHERE id = :id")
-    LiveData<Movie> loadMovieById(int id);
+    LiveData<Movie> loadMovieById(String id);
 
     @Query("SELECT * FROM favorite_movies WHERE id = :id")
-    Movie loadMovieById2(int id);
+    Movie loadMovieById2(String id);
+
 }
 
 

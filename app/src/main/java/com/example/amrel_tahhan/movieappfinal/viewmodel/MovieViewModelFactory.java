@@ -7,9 +7,9 @@ import com.example.amrel_tahhan.movieappfinal.database.MovieDatabase;
 
 public class MovieViewModelFactory extends ViewModelProvider.NewInstanceFactory{
     MovieDatabase db;
-    int movieid;
+    String movieid;
 
-    public MovieViewModelFactory(MovieDatabase db, int movieid) {
+    public MovieViewModelFactory(MovieDatabase db, String movieid) {
         this.db = db;
         this.movieid = movieid;
     }

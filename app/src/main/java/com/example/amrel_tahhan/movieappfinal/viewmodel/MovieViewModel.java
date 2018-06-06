@@ -11,7 +11,7 @@ public class MovieViewModel extends ViewModel {
 
     private LiveData<Movie> movie;
 
-    public MovieViewModel(MovieDatabase db, int movieId) {
+    public MovieViewModel(MovieDatabase db, String movieId) {
         movie = db.movieDao().loadMovieById(movieId);
     }
 

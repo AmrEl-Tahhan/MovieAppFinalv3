@@ -223,7 +223,7 @@ public class Description extends AppCompatActivity {
 
     public void onFabClickHandler(View view) {
         final MovieDatabase database = MovieDatabase.getInstanse(this);
-        if (database.movieDao().loadMovieById2(Integer.valueOf(mMovie.getId())) != null) {
+        if (database.movieDao().loadMovieById2(mMovie.getId()) != null) {
             deleteFavorite();
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
                 fab.setImageDrawable(getResources().getDrawable(R.drawable.heart));
