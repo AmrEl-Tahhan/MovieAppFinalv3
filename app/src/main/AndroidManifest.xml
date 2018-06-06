@@ -21,7 +21,6 @@
         </activity>
         <activity android:name=".Description"></activity>
         <activity android:name=".NoNetworkAccessActivity"></activity>
-        <activity android:name=".FavouriteActivity"></activity>
     </application>
 
 </manifest>
