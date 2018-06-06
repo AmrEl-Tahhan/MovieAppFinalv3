@@ -5,13 +5,7 @@ import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Delete;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.Query;
-
 import com.example.amrel_tahhan.movieappfinal.model.Movie;
-import com.example.amrel_tahhan.movieappfinal.model.Review;
-import com.example.amrel_tahhan.movieappfinal.model.ReviewResponse;
-import com.example.amrel_tahhan.movieappfinal.model.Video;
-import com.example.amrel_tahhan.movieappfinal.model.VideoResponse;
-
 import java.util.List;
 
 /**

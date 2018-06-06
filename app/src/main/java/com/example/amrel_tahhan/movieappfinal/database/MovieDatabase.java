@@ -25,7 +25,6 @@ public abstract class MovieDatabase extends RoomDatabase {
         if (Instanse == null) {
             synchronized (MovieDatabase.class) {
                 Instanse = Room.databaseBuilder(context.getApplicationContext(), MovieDatabase.class, DATABASE_NAME)
-                        .allowMainThreadQueries()
                         .build();
             }
         }

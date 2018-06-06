@@ -35,7 +35,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Description extends AppCompatActivity {
-
+    boolean isMovie = false;
     private Movie mMovie;
     @BindView(R.id.fab)
     FloatingActionButton fab ;
@@ -223,19 +223,30 @@ public class Description extends AppCompatActivity {
 
     public void onFabClickHandler(View view) {
         final MovieDatabase database = MovieDatabase.getInstanse(this);
-        if (database.movieDao().loadMovieById2(mMovie.getId()) != null) {
-            deleteFavorite();
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                fab.setImageDrawable(getResources().getDrawable(R.drawable.heart));
-                Toast.makeText(getApplicationContext(), "movie deleted", Toast.LENGTH_SHORT).show();
-            } else {
-                saveFavorite();
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                    fab.setImageDrawable(getResources().getDrawable(R.drawable.delete));
+
+
+AppExecutors.getInstance().diskIO().execute(new Runnable() {
+    @Override
+    public void run() {
+        isMovie = database.movieDao().loadMovieById2(mMovie.getId()) != null;
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (isMovie) {
+                    deleteFavorite();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                        fab.setImageDrawable(getResources().getDrawable(R.drawable.heart));
+                    Toast.makeText(getApplicationContext(), "movie deleted", Toast.LENGTH_SHORT).show();
+                } else {
+                    saveFavorite();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                        fab.setImageDrawable(getResources().getDrawable(R.drawable.delete));
                     Toast.makeText(getApplicationContext(), "movie saved", Toast.LENGTH_SHORT).show();
+                }
             }
-
-
+        });
+    }
+});
         }
     }
 
