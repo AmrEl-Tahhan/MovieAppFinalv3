@@ -64,7 +64,6 @@ public class Description extends AppCompatActivity {
     private Unbinder unbinder;
 
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -189,7 +188,6 @@ public class Description extends AppCompatActivity {
     }
 
 
-
     public void saveFavorite() {
         final Movie favoriteMovie = new Movie(mMovie.getVote_average(), mMovie.getBackdrop_path(), mMovie.getId(), mMovie.getTitle()
                 , mMovie.getOverview(), mMovie.getRelease_date(), mMovie.getOriginal_title(),
@@ -222,12 +220,13 @@ public class Description extends AppCompatActivity {
 
     public void onFabClickHandler(View view) {
         final MovieDatabase database = MovieDatabase.getInstanse(this);
-        if (database.movieDao().loadMovieById(Integer.valueOf(mMovie.getId())).getValue()!=null )
-        {  deleteFavorite();
-            Toast.makeText(getApplicationContext(), "movie deleted", Toast.LENGTH_SHORT).show();}
-        else {
+        if (database.movieDao().loadMovieById(Integer.valueOf(mMovie.getId())) != null) {
+            deleteFavorite();
+            Toast.makeText(getApplicationContext(), "movie deleted", Toast.LENGTH_SHORT).show();
+        } else {
             saveFavorite();
-            Toast.makeText(getApplicationContext(), "movie saved", Toast.LENGTH_SHORT).show();}
+            Toast.makeText(getApplicationContext(), "movie saved", Toast.LENGTH_SHORT).show();
+        }
 
 
     }
