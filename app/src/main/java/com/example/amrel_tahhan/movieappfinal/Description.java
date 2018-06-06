@@ -1,6 +1,8 @@
 package com.example.amrel_tahhan.movieappfinal;
 
+import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -35,7 +37,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class Description extends AppCompatActivity {
 
     private Movie mMovie;
-
+    @BindView(R.id.fab)
+    FloatingActionButton fab ;
     @BindView(R.id.backdrop_ip)
     ImageView Backdrop;
 
@@ -222,12 +225,17 @@ public class Description extends AppCompatActivity {
         final MovieDatabase database = MovieDatabase.getInstanse(this);
         if (database.movieDao().loadMovieById2(Integer.valueOf(mMovie.getId())) != null) {
             deleteFavorite();
-            Toast.makeText(getApplicationContext(), "movie deleted", Toast.LENGTH_SHORT).show();
-        } else {
-            saveFavorite();
-            Toast.makeText(getApplicationContext(), "movie saved", Toast.LENGTH_SHORT).show();
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                fab.setImageDrawable(getResources().getDrawable(R.drawable.heart));
+                Toast.makeText(getApplicationContext(), "movie deleted", Toast.LENGTH_SHORT).show();
+            } else {
+                saveFavorite();
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                    fab.setImageDrawable(getResources().getDrawable(R.drawable.delete));
+                    Toast.makeText(getApplicationContext(), "movie saved", Toast.LENGTH_SHORT).show();
+            }
+
+
         }
     }
 
-
-}

@@ -1,6 +1,7 @@
 package com.example.amrel_tahhan.movieappfinal.model;
 
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -146,7 +147,7 @@ public class Movie implements Parcelable {
 
     public Movie() {
     }
-
+@Ignore
     public Movie(String vote_average, String backdrop_path,  @NonNull String id, String title, String overview, String release_date, String original_title, String vote_count, String poster_path, String video) {
         this.vote_average = vote_average;
         this.backdrop_path = backdrop_path;
