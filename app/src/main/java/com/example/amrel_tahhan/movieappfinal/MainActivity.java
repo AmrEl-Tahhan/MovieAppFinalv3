@@ -4,9 +4,9 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -60,15 +59,13 @@ public class MainActivity extends AppCompatActivity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		ButterKnife.bind(this);
+        toolbar.setTitle(R.string.app_name);
+        setSupportActionBar(toolbar);
 		if (isOnline()) {
-			toolbar.setTitle(R.string.app_name);
-			setSupportActionBar(toolbar);
 			initRecyclerView(mItemList);
-
-			requestData();
+			requestData(mItemList);
 		} else {
-			Intent intent = new Intent(getApplicationContext(), NoNetworkAccessActivity.class);
-			startActivity(intent);
+			Toast.makeText(this,"Please Check your Internet",Toast.LENGTH_SHORT).show();
 
 		}
 	}
@@ -89,8 +86,10 @@ public class MainActivity extends AppCompatActivity {
                         int newSpanCount = Math.max(2, (int) Math.floor(viewWidth / cardViewWidth));
                         mLayoutManager.setSpanCount(newSpanCount);
                         mLayoutManager.requestLayout();
+
                     }
                 });
+        recyclerView.setVisibility(View.VISIBLE);
 	}
 
 	@Override
@@ -105,14 +104,14 @@ public class MainActivity extends AppCompatActivity {
 			showSortDialog();
 			return true;
 		}
-		else if (item.getItemId()==R.id.fav_button) {
+        else if (item.getItemId()==R.id.fav_button) {
 			MovieDatabase mDb =  MovieDatabase.getInstanse(this);
-			final LiveData<List<Movie>> mItemList =  mDb.movieDao().loadAllMovies();
-			mItemList.observe(this, new Observer<List<Movie>>() {
+             LiveData<List<Movie>> fItemList =  mDb.movieDao().loadAllMovies();
+			fItemList.observe(this, new Observer<List<Movie>>() {
 				@Override
 				public void onChanged(@Nullable List<Movie> movies) {
-
 					initRecyclerView(movies);
+
 				}
 			});
 			return true;
@@ -134,17 +133,16 @@ public class MainActivity extends AppCompatActivity {
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int which) {
 								mSort = (which == 0) ? Constants.SORT_POPULAR : Constants.SORT_HIGHEST_RATED;
-								requestData();
+								requestData(mItemList);
 								dialog.dismiss();
 							}
 						});
 		builder.create().show();
 	}
 
-	private void requestData() {
+	private void requestData(final List<Movie> mItemList) {
 		Retrofit mRetrofit;
 		MyWebService mService;
-
 		mRetrofit = new Retrofit.Builder()
 				.baseUrl(Constants.BASE_API_URL)
 				.addConverterFactory(GsonConverterFactory.create(new Gson()))
@@ -153,7 +151,7 @@ public class MainActivity extends AppCompatActivity {
 		mService = mRetrofit.create(MyWebService.class);
 		mService.discoverMovie(Constants.MOVIEDB_APIKEY, mSort).enqueue(new Callback<MovieResponse>() {
 			@Override
-			public void onResponse(Call<MovieResponse> call, Response<MovieResponse> response) {
+			public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
 
 				MovieResponse body = response.body();
 
@@ -161,17 +159,15 @@ public class MainActivity extends AppCompatActivity {
 
 					mItemList.clear();
 					mItemList.addAll(body.getResults());
+					initRecyclerView(mItemList);
 					movieAdapter.notifyDataSetChanged();
-
-					recyclerView.setVisibility(View.VISIBLE);
-//                       mProgressView.stopAndGone();
 					Toast.makeText(getApplicationContext(), "response done", Toast.LENGTH_SHORT).show();
 				}
 			}
 
 			@Override
 			public void onFailure(Call<MovieResponse> call, Throwable t) {
-				Toast.makeText(getApplicationContext(), " failure", Toast.LENGTH_SHORT);
+				Toast.makeText(getApplicationContext(), " failure", Toast.LENGTH_SHORT).show();
 
 			}
 		});
