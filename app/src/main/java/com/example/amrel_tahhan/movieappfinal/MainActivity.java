@@ -1,16 +1,20 @@
 package com.example.amrel_tahhan.movieappfinal;
 
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,6 +22,7 @@ import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
 import com.example.amrel_tahhan.movieappfinal.adapter.MovieAdapter;
+import com.example.amrel_tahhan.movieappfinal.database.MovieDatabase;
 import com.example.amrel_tahhan.movieappfinal.model.MovieResponse;
 import com.example.amrel_tahhan.movieappfinal.model.Movie;
 import com.example.amrel_tahhan.movieappfinal.retrofit.MyWebService;
@@ -40,7 +45,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 // 4th https://www.youtube.com/watch?v=kmUGLURRPkI&t=9s
 
 public class MainActivity extends AppCompatActivity {
-	private static final int MAX_WIDTH_COL_DP = 200;
+	public static final int MAX_WIDTH_COL_DP = 200;
 	@BindView(R.id.recycler_view)
 	RecyclerView recyclerView;
 	private MovieAdapter movieAdapter;
@@ -58,23 +63,7 @@ public class MainActivity extends AppCompatActivity {
 		if (isOnline()) {
 			toolbar.setTitle(R.string.app_name);
 			setSupportActionBar(toolbar);
-			recyclerView.setVisibility(View.GONE);
-			movieAdapter = new MovieAdapter(mItemList);
-			recyclerView.setAdapter(movieAdapter);
-			final StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-			recyclerView.setLayoutManager(mLayoutManager);
-			//change span dynamically based on screen width
-			recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(
-					new ViewTreeObserver.OnGlobalLayoutListener() {
-						@Override
-						public void onGlobalLayout() {
-							int viewWidth = recyclerView.getMeasuredWidth();
-							float cardViewWidth = MAX_WIDTH_COL_DP * getResources().getDisplayMetrics().density;
-							int newSpanCount = Math.max(2, (int) Math.floor(viewWidth / cardViewWidth));
-							mLayoutManager.setSpanCount(newSpanCount);
-							mLayoutManager.requestLayout();
-						}
-					});
+			initRecyclerView(mItemList);
 
 			requestData();
 		} else {
@@ -82,6 +71,26 @@ public class MainActivity extends AppCompatActivity {
 			startActivity(intent);
 
 		}
+	}
+
+	private void initRecyclerView(List<Movie> mItemList) {
+		recyclerView.setVisibility(View.GONE);
+		movieAdapter = new MovieAdapter(mItemList);
+		recyclerView.setAdapter(movieAdapter);
+		final StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+		recyclerView.setLayoutManager(mLayoutManager);
+		//change span dynamically based on screen width
+		recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(
+                new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        int viewWidth = recyclerView.getMeasuredWidth();
+                        float cardViewWidth = MAX_WIDTH_COL_DP * getResources().getDisplayMetrics().density;
+                        int newSpanCount = Math.max(2, (int) Math.floor(viewWidth / cardViewWidth));
+                        mLayoutManager.setSpanCount(newSpanCount);
+                        mLayoutManager.requestLayout();
+                    }
+                });
 	}
 
 	@Override
@@ -94,9 +103,23 @@ public class MainActivity extends AppCompatActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.action_sort) {
 			showSortDialog();
-
 			return true;
-		} else {
+		}
+		else if (item.getItemId()==R.id.fav_button) {
+			MovieDatabase mDb =  MovieDatabase.getInstanse(this);
+			final LiveData<List<Movie>> mItemList =  mDb.movieDao().loadAllMovies();
+			mItemList.observe(this, new Observer<List<Movie>>() {
+				@Override
+				public void onChanged(@Nullable List<Movie> movies) {
+
+					initRecyclerView(movies);
+				}
+			});
+			return true;
+
+		}
+
+		else {
 			return super.onOptionsItemSelected(item);
 		}
 	}

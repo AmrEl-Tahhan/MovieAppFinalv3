@@ -220,15 +220,13 @@ public class Description extends AppCompatActivity {
 
     public void onFabClickHandler(View view) {
         final MovieDatabase database = MovieDatabase.getInstanse(this);
-        if (database.movieDao().loadMovieById(Integer.valueOf(mMovie.getId())) != null) {
+        if (database.movieDao().loadMovieById2(Integer.valueOf(mMovie.getId())) != null) {
             deleteFavorite();
             Toast.makeText(getApplicationContext(), "movie deleted", Toast.LENGTH_SHORT).show();
         } else {
             saveFavorite();
             Toast.makeText(getApplicationContext(), "movie saved", Toast.LENGTH_SHORT).show();
         }
-
-
     }
 
 
