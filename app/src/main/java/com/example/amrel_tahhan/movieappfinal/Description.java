@@ -1,5 +1,6 @@
 package com.example.amrel_tahhan.movieappfinal;
 
+import android.arch.lifecycle.LiveData;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
@@ -21,6 +22,7 @@ import com.example.amrel_tahhan.movieappfinal.model.ReviewResponse;
 import com.example.amrel_tahhan.movieappfinal.model.VideoResponse;
 import com.example.amrel_tahhan.movieappfinal.retrofit.MyWebService;
 import com.example.amrel_tahhan.movieappfinal.viewmodel.AppExecutors;
+import com.example.amrel_tahhan.movieappfinal.viewmodel.MovieViewModel;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
@@ -71,6 +73,7 @@ public class Description extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_description);
+        setFabIcon();
         unbinder = ButterKnife.bind(this);
         mMovie = getIntent().getParcelableExtra("movieItem");
 
@@ -82,6 +85,7 @@ public class Description extends AppCompatActivity {
         retrieveReviews();
         initRecyclerView();
         initVidRecyclerView();
+        LiveData<MovieViewModel> liveData ;
     }
 
     private void initRecyclerView() {
@@ -222,12 +226,13 @@ public class Description extends AppCompatActivity {
     }
 
     public void onFabClickHandler(View view) {
-        final MovieDatabase database = MovieDatabase.getInstanse(this);
 
+        final MovieDatabase database = MovieDatabase.getInstanse(this);
 
 AppExecutors.getInstance().diskIO().execute(new Runnable() {
     @Override
     public void run() {
+
         isMovie = database.movieDao().loadMovieById2(mMovie.getId()) != null;
         runOnUiThread(new Runnable() {
             @Override
@@ -247,6 +252,29 @@ AppExecutors.getInstance().diskIO().execute(new Runnable() {
         });
     }
 });
+        }
+
+        public void setFabIcon(){
+            final MovieDatabase database = MovieDatabase.getInstanse(this);
+
+            AppExecutors.getInstance().diskIO().execute(new Runnable() {
+                @Override
+                public void run() {
+                    isMovie = database.movieDao().loadMovieById2(mMovie.getId()) != null;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            if (isMovie) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                                    fab.setImageDrawable(getResources().getDrawable(R.drawable.delete));
+                            } else {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                                    fab.setImageDrawable(getResources().getDrawable(R.drawable.heart));
+                            }
+                        }
+                    });
+                }
+            });
         }
     }
 

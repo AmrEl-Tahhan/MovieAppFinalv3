@@ -63,7 +63,7 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.ViewHolder> 
                 .placeholder(R.drawable.placeholder_video)
                 .into(holder.thumbnail);
 
-        final String videoItem = holder.videoLink.getText().toString();
+      final String videoItem = holder.videoLink.getText().toString();
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -25,6 +26,7 @@ import com.example.amrel_tahhan.movieappfinal.database.MovieDatabase;
 import com.example.amrel_tahhan.movieappfinal.model.MovieResponse;
 import com.example.amrel_tahhan.movieappfinal.model.Movie;
 import com.example.amrel_tahhan.movieappfinal.retrofit.MyWebService;
+import com.example.amrel_tahhan.movieappfinal.viewmodel.MainViewModel;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -43,7 +45,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 // 3rd https://www.youtube.com/watch?v=THadGrPeSJM
 // 4th https://www.youtube.com/watch?v=kmUGLURRPkI&t=9s
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity   {
 	public static final int MAX_WIDTH_COL_DP = 200;
 	@BindView(R.id.recycler_view)
 	RecyclerView recyclerView;
@@ -52,7 +54,12 @@ public class MainActivity extends AppCompatActivity {
 	private String mSort = Constants.SORT_POPULAR;
 	@BindView(R.id.toolbar)
 	Toolbar toolbar;
-
+	private final String LIST_STATE_KEY = "layout_state";
+	private static Bundle mBundleRecyclerViewState;
+	final StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+	Parcelable mListState;
+	private MainViewModel viewModel;
+	Context context ;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -63,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 		if (isOnline()) {
 			initRecyclerView(mItemList);
-			requestData(mItemList);
+			requestMostPopular(mItemList);
 		} else {
 			Toast.makeText(this,"Please Check your Internet",Toast.LENGTH_SHORT).show();
 
@@ -74,7 +81,6 @@ public class MainActivity extends AppCompatActivity {
 		recyclerView.setVisibility(View.GONE);
 		movieAdapter = new MovieAdapter(mItemList);
 		recyclerView.setAdapter(movieAdapter);
-		final StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
 		recyclerView.setLayoutManager(mLayoutManager);
 		//change span dynamically based on screen width
 		recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(
@@ -133,14 +139,15 @@ public class MainActivity extends AppCompatActivity {
 						new DialogInterface.OnClickListener() {
 							public void onClick(DialogInterface dialog, int which) {
 								mSort = (which == 0) ? Constants.SORT_POPULAR : Constants.SORT_HIGHEST_RATED;
-								requestData(mItemList);
+								requestMostPopular(mItemList);
+								requestTopRated(mItemList);
 								dialog.dismiss();
 							}
 						});
 		builder.create().show();
 	}
 
-	private void requestData(final List<Movie> mItemList) {
+	private void requestMostPopular(final List<Movie> mItemList) {
 		Retrofit mRetrofit;
 		MyWebService mService;
 		mRetrofit = new Retrofit.Builder()
@@ -149,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
 				.build();
 
 		mService = mRetrofit.create(MyWebService.class);
-		mService.discoverMovie(Constants.MOVIEDB_APIKEY, mSort).enqueue(new Callback<MovieResponse>() {
+		mService.discoverPopularMovie(Constants.MOVIEDB_APIKEY).enqueue(new Callback<MovieResponse>() {
 			@Override
 			public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
 
@@ -172,12 +179,80 @@ public class MainActivity extends AppCompatActivity {
 			}
 		});
 	}
+	private void requestTopRated(final List<Movie> mItemList) {
+		Retrofit mRetrofit;
+		MyWebService mService;
+		mRetrofit = new Retrofit.Builder()
+				.baseUrl(Constants.BASE_API_URL)
+				.addConverterFactory(GsonConverterFactory.create(new Gson()))
+				.build();
 
+		mService = mRetrofit.create(MyWebService.class);
+		mService.discoverTopRatedMovie(Constants.MOVIEDB_APIKEY).enqueue(new Callback<MovieResponse>() {
+			@Override
+			public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
+
+				MovieResponse body = response.body();
+
+				if (body != null) {
+
+					mItemList.clear();
+					mItemList.addAll(body.getResults());
+					initRecyclerView(mItemList);
+					movieAdapter.notifyDataSetChanged();
+					Toast.makeText(getApplicationContext(), "response done", Toast.LENGTH_SHORT).show();
+				}
+			}
+
+			@Override
+			public void onFailure(Call<MovieResponse> call, Throwable t) {
+				Toast.makeText(getApplicationContext(), " failure", Toast.LENGTH_SHORT).show();
+
+			}
+		});
+	}
 	public boolean isOnline() {
 		ConnectivityManager cm =
 				(ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 		NetworkInfo netInfo = cm.getActiveNetworkInfo();
 		return netInfo != null && netInfo.isConnectedOrConnecting();
 	}
+
+	protected void onSaveInstanceState(Bundle state) {
+
+		super.onSaveInstanceState(state);
+	}
+
+	protected void onRestoreInstanceState(Bundle state) {
+		super.onRestoreInstanceState(state);
+
+		// Retrieve list state and list/item positions
+		if(state != null)
+			mListState = state.getParcelable(LIST_STATE_KEY);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+
+
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if (mListState != null) {
+			mLayoutManager.onRestoreInstanceState(mListState);
+		}
+		}
+
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+		if (mListState != null) {
+			mLayoutManager.onRestoreInstanceState(mListState);
+		}
+	}
 }
+
 
