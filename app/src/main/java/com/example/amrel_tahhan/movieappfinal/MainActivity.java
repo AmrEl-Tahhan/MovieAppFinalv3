@@ -12,6 +12,7 @@ import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -45,45 +46,62 @@ import retrofit2.converter.gson.GsonConverterFactory;
 // 3rd https://www.youtube.com/watch?v=THadGrPeSJM
 // 4th https://www.youtube.com/watch?v=kmUGLURRPkI&t=9s
 
-public class MainActivity extends AppCompatActivity   {
-	public static final int MAX_WIDTH_COL_DP = 200;
-	@BindView(R.id.recycler_view)
-	RecyclerView recyclerView;
-	private MovieAdapter movieAdapter;
-	private List<Movie> mItemList = new ArrayList<>();
-	private String mSort = Constants.SORT_POPULAR;
-	@BindView(R.id.toolbar)
-	Toolbar toolbar;
-	private final String LIST_STATE_KEY = "layout_state";
-	private static Bundle mBundleRecyclerViewState;
-	final StaggeredGridLayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-	Parcelable mListState;
-	private MainViewModel viewModel;
-	Context context ;
+public class MainActivity extends AppCompatActivity {
+    public static final int MAX_WIDTH_COL_DP = 200;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
-		ButterKnife.bind(this);
+    @BindView(R.id.recycler_view)
+    RecyclerView recyclerView;
+    private MovieAdapter movieAdapter;
+    private List<Movie> mItemList = new ArrayList<>();
+    private String mSort = Constants.SORT_POPULAR;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    private Parcelable mListState;
+    private String LIST_STATE_KEY = "key";
+    private Boolean navPopular, navTopRated, navFavorite;
+    private MainViewModel viewModel;
+    //	private final String LIST_STATE_KEY = "layout_state";
+//	private static Bundle mBundleRecyclerViewState;
+//	private MainViewModel viewModel;
+    Context context;
+    private int recycler_position;
+    GridLayoutManager mLayoutManager;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
         toolbar.setTitle(R.string.app_name);
         setSupportActionBar(toolbar);
-		if (isOnline()) {
-			initRecyclerView(mItemList);
-			requestMostPopular(mItemList);
-		} else {
-			Toast.makeText(this,"Please Check your Internet",Toast.LENGTH_SHORT).show();
 
-		}
-	}
 
-	private void initRecyclerView(List<Movie> mItemList) {
-		recyclerView.setVisibility(View.GONE);
-		movieAdapter = new MovieAdapter(mItemList);
-		recyclerView.setAdapter(movieAdapter);
-		recyclerView.setLayoutManager(mLayoutManager);
-		//change span dynamically based on screen width
-		recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(
+        if (isOnline()) {
+            if (savedInstanceState == null) {
+                recycler_position = 0;
+                requestMostPopular(mItemList);
+            }
+        }
+
+        else {
+                Toast.makeText(this, "Please Check your Internet", Toast.LENGTH_SHORT).show();
+
+            }
+
+
+        }
+
+
+    private void initRecyclerView(List<Movie> mItemList) {
+        recyclerView.setVisibility(View.GONE);
+        movieAdapter = new MovieAdapter(mItemList);
+        recyclerView.setAdapter(movieAdapter);
+        mLayoutManager = new GridLayoutManager(context, 2);
+        recyclerView.setLayoutManager( mLayoutManager);
+        recyclerView.smoothScrollToPosition(recycler_position);
+
+        //change span dynamically based on screen width
+        recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
@@ -96,163 +114,169 @@ public class MainActivity extends AppCompatActivity   {
                     }
                 });
         recyclerView.setVisibility(View.VISIBLE);
-	}
+    }
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.menu_main, menu);
-		return true;
-	}
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
 
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		if (item.getItemId() == R.id.action_sort) {
-			showSortDialog();
-			return true;
-		}
-        else if (item.getItemId()==R.id.fav_button) {
-			MovieDatabase mDb =  MovieDatabase.getInstanse(this);
-             LiveData<List<Movie>> fItemList =  mDb.movieDao().loadAllMovies();
-			fItemList.observe(this, new Observer<List<Movie>>() {
-				@Override
-				public void onChanged(@Nullable List<Movie> movies) {
-					initRecyclerView(movies);
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_sort) {
+            showSortDialog();
+            return true;
+        } else if (item.getItemId() == R.id.fav_button) {
+            requestFavourites();
+            return true;
 
-				}
-			});
-			return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+    }
 
-		}
+    private void showSortDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.sort_by)
+                .setSingleChoiceItems(
+                        new String[]{getString(R.string.main_sort_most_popular),
+                                getString((R.string.main_sort_highest_rated))},
+                        (mSort.equals(Constants.SORT_POPULAR)) ? 0 : 1,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                switch (which) {
+                                    case 0 : requestMostPopular(mItemList); break;
+                                    case 1 : requestTopRated(mItemList); break;
 
-		else {
-			return super.onOptionsItemSelected(item);
-		}
-	}
+                                }
+                                dialog.dismiss();
+                            }
+                        });
+        builder.create().show();
+    }
 
-	private void showSortDialog() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(R.string.sort_by)
-				.setSingleChoiceItems(
-						new String[]{getString(R.string.main_sort_most_popular),
-								getString((R.string.main_sort_highest_rated))},
-						(mSort.equals(Constants.SORT_POPULAR)) ? 0 : 1,
-						new DialogInterface.OnClickListener() {
-							public void onClick(DialogInterface dialog, int which) {
-								mSort = (which == 0) ? Constants.SORT_POPULAR : Constants.SORT_HIGHEST_RATED;
-								requestMostPopular(mItemList);
-								requestTopRated(mItemList);
-								dialog.dismiss();
-							}
-						});
-		builder.create().show();
-	}
+    private void requestFavourites() {
+        navPopular = false;
+        navTopRated = false;
+        navFavorite = true;
+        MovieDatabase mDb = MovieDatabase.getInstanse(this);
+        LiveData<List<Movie>> fItemList = mDb.movieDao().loadAllMovies();
+        fItemList.observe(this, new Observer<List<Movie>>() {
+            @Override
+            public void onChanged(@Nullable List<Movie> movies) {
+                initRecyclerView(movies);
 
-	private void requestMostPopular(final List<Movie> mItemList) {
-		Retrofit mRetrofit;
-		MyWebService mService;
-		mRetrofit = new Retrofit.Builder()
-				.baseUrl(Constants.BASE_API_URL)
-				.addConverterFactory(GsonConverterFactory.create(new Gson()))
-				.build();
+            }
+        });
+//        recycler_position = 0 ;
+    }
 
-		mService = mRetrofit.create(MyWebService.class);
-		mService.discoverPopularMovie(Constants.MOVIEDB_APIKEY).enqueue(new Callback<MovieResponse>() {
-			@Override
-			public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
+    private void requestMostPopular(final List<Movie> mItemList) {
+        navPopular = true;
+        navTopRated = false;
+        navFavorite = false;
+        Retrofit mRetrofit;
+        MyWebService mService;
+        mRetrofit = new Retrofit.Builder()
+                .baseUrl(Constants.BASE_API_URL)
+                .addConverterFactory(GsonConverterFactory.create(new Gson()))
+                .build();
 
-				MovieResponse body = response.body();
+        mService = mRetrofit.create(MyWebService.class);
+        mService.discoverPopularMovie(Constants.MOVIEDB_APIKEY).enqueue(new Callback<MovieResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
 
-				if (body != null) {
+                MovieResponse body = response.body();
 
-					mItemList.clear();
-					mItemList.addAll(body.getResults());
-					initRecyclerView(mItemList);
-					movieAdapter.notifyDataSetChanged();
-					Toast.makeText(getApplicationContext(), "response done", Toast.LENGTH_SHORT).show();
-				}
-			}
+                if (body != null) {
 
-			@Override
-			public void onFailure(Call<MovieResponse> call, Throwable t) {
-				Toast.makeText(getApplicationContext(), " failure", Toast.LENGTH_SHORT).show();
+                    mItemList.clear();
+                    mItemList.addAll(body.getResults());
+                    initRecyclerView(mItemList);
+                    movieAdapter.notifyDataSetChanged();
+                    Toast.makeText(getApplicationContext(), "response done", Toast.LENGTH_SHORT).show();
+                }
+            }
 
-			}
-		});
-	}
-	private void requestTopRated(final List<Movie> mItemList) {
-		Retrofit mRetrofit;
-		MyWebService mService;
-		mRetrofit = new Retrofit.Builder()
-				.baseUrl(Constants.BASE_API_URL)
-				.addConverterFactory(GsonConverterFactory.create(new Gson()))
-				.build();
+            @Override
+            public void onFailure(Call<MovieResponse> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), " failure", Toast.LENGTH_SHORT).show();
 
-		mService = mRetrofit.create(MyWebService.class);
-		mService.discoverTopRatedMovie(Constants.MOVIEDB_APIKEY).enqueue(new Callback<MovieResponse>() {
-			@Override
-			public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
+            }
+        });
+    }
 
-				MovieResponse body = response.body();
-
-				if (body != null) {
-
-					mItemList.clear();
-					mItemList.addAll(body.getResults());
-					initRecyclerView(mItemList);
-					movieAdapter.notifyDataSetChanged();
-					Toast.makeText(getApplicationContext(), "response done", Toast.LENGTH_SHORT).show();
-				}
-			}
-
-			@Override
-			public void onFailure(Call<MovieResponse> call, Throwable t) {
-				Toast.makeText(getApplicationContext(), " failure", Toast.LENGTH_SHORT).show();
-
-			}
-		});
-	}
-	public boolean isOnline() {
-		ConnectivityManager cm =
-				(ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-		NetworkInfo netInfo = cm.getActiveNetworkInfo();
-		return netInfo != null && netInfo.isConnectedOrConnecting();
-	}
-
-	protected void onSaveInstanceState(Bundle state) {
-
-		super.onSaveInstanceState(state);
-	}
-
-	protected void onRestoreInstanceState(Bundle state) {
-		super.onRestoreInstanceState(state);
-
-		// Retrieve list state and list/item positions
-		if(state != null)
-			mListState = state.getParcelable(LIST_STATE_KEY);
-	}
-
-	@Override
-	protected void onPause() {
-		super.onPause();
+    private void requestTopRated(final List<Movie> mItemList) {
+        navPopular = false;
+        navTopRated = true;
+        navFavorite = false;
 
 
-	}
+        Retrofit mRetrofit;
+        MyWebService mService;
+        mRetrofit = new Retrofit.Builder()
+                .baseUrl(Constants.BASE_API_URL)
+                .addConverterFactory(GsonConverterFactory.create(new Gson()))
+                .build();
 
-	@Override
-	protected void onResume() {
-		super.onResume();
-		if (mListState != null) {
-			mLayoutManager.onRestoreInstanceState(mListState);
-		}
-		}
+        mService = mRetrofit.create(MyWebService.class);
+        mService.discoverTopRatedMovie(Constants.MOVIEDB_APIKEY).enqueue(new Callback<MovieResponse>() {
+            @Override
+            public void onResponse(@NonNull Call<MovieResponse> call, @NonNull Response<MovieResponse> response) {
 
-	@Override
-	protected void onRestart() {
-		super.onRestart();
-		if (mListState != null) {
-			mLayoutManager.onRestoreInstanceState(mListState);
-		}
-	}
+                MovieResponse body = response.body();
+
+                if (body != null) {
+
+                    mItemList.clear();
+                    mItemList.addAll(body.getResults());
+                    initRecyclerView(mItemList);
+                    movieAdapter.notifyDataSetChanged();
+                    Toast.makeText(getApplicationContext(), "response done", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<MovieResponse> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), " failure", Toast.LENGTH_SHORT).show();
+
+            }
+        });
+//        recycler_position = 0 ;
+    }
+
+    public boolean isOnline() {
+        ConnectivityManager cm =
+                (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo netInfo = cm.getActiveNetworkInfo();
+        return netInfo != null && netInfo.isConnectedOrConnecting();
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt("ID", mLayoutManager.findLastVisibleItemPosition());
+        outState.putBoolean(getString(R.string.title_popular), navPopular);
+        outState.putBoolean(getString(R.string.title_favorite), navFavorite);
+        outState.putBoolean(getString(R.string.title_top_rated), navTopRated);
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+            recycler_position = savedInstanceState.getInt("ID");
+            if (savedInstanceState.getBoolean(getString(R.string.title_popular))) {
+                requestMostPopular(mItemList);
+            } else if (savedInstanceState.getBoolean(getString(R.string.title_favorite))) {
+                requestFavourites();
+            } else if (savedInstanceState.getBoolean(getString(R.string.title_top_rated))) {
+                requestTopRated(mItemList);
+            }
+
+
+    }
 }
 
 

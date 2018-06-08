@@ -40,7 +40,7 @@ public class Description extends AppCompatActivity {
     boolean isMovie = false;
     private Movie mMovie;
     @BindView(R.id.fab)
-    FloatingActionButton fab ;
+    FloatingActionButton fab;
     @BindView(R.id.backdrop_ip)
     ImageView Backdrop;
 
@@ -85,7 +85,7 @@ public class Description extends AppCompatActivity {
         retrieveReviews();
         initRecyclerView();
         initVidRecyclerView();
-        LiveData<MovieViewModel> liveData ;
+        LiveData<MovieViewModel> liveData;
     }
 
     private void initRecyclerView() {
@@ -229,38 +229,39 @@ public class Description extends AppCompatActivity {
 
         final MovieDatabase database = MovieDatabase.getInstanse(this);
 
-AppExecutors.getInstance().diskIO().execute(new Runnable() {
-    @Override
-    public void run() {
-
-        isMovie = database.movieDao().loadMovieById2(mMovie.getId()) != null;
-        runOnUiThread(new Runnable() {
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                if (isMovie) {
-                    deleteFavorite();
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                        fab.setImageDrawable(getResources().getDrawable(R.drawable.heart));
-                    Toast.makeText(getApplicationContext(), "movie deleted", Toast.LENGTH_SHORT).show();
-                } else {
-                    saveFavorite();
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
-                        fab.setImageDrawable(getResources().getDrawable(R.drawable.delete));
-                    Toast.makeText(getApplicationContext(), "movie saved", Toast.LENGTH_SHORT).show();
-                }
+
+                isMovie = database.movieDao().loadMovieById2(mMovie.getId()) != null;
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isMovie) {
+                            deleteFavorite();
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                                fab.setImageDrawable(getResources().getDrawable(R.drawable.heart));
+                            Toast.makeText(getApplicationContext(), "movie deleted", Toast.LENGTH_SHORT).show();
+                        } else {
+                            saveFavorite();
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
+                                fab.setImageDrawable(getResources().getDrawable(R.drawable.delete));
+                            Toast.makeText(getApplicationContext(), "movie saved", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             }
         });
     }
-});
-        }
 
-        public void setFabIcon(){
-            final MovieDatabase database = MovieDatabase.getInstanse(this);
-
+    public void setFabIcon() {
+        final MovieDatabase database = MovieDatabase.getInstanse(this);
+        if (mMovie != null) {
             AppExecutors.getInstance().diskIO().execute(new Runnable() {
                 @Override
                 public void run() {
-                    isMovie = database.movieDao().loadMovieById2(mMovie.getId()) != null;
+                    if (database.movieDao().loadMovieById2(mMovie.getId()) != null)
+                        isMovie = true;
                     runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
@@ -276,5 +277,7 @@ AppExecutors.getInstance().diskIO().execute(new Runnable() {
                 }
             });
         }
+
     }
+}
 
