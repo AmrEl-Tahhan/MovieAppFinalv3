@@ -4,8 +4,10 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -16,6 +18,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -48,7 +51,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class MainActivity extends AppCompatActivity {
     public static final int MAX_WIDTH_COL_DP = 200;
-
+    Parcelable mListState;
+    private final String KEY_RECYCLER_STATE = "recycler_state";
+    private static Bundle mBundleRecyclerViewState;
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
     private MovieAdapter movieAdapter;
@@ -56,9 +61,8 @@ public class MainActivity extends AppCompatActivity {
     private String mSort = Constants.SORT_POPULAR;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
-    private Parcelable mListState;
     private String LIST_STATE_KEY = "key";
-    private Boolean navPopular, navTopRated, navFavorite;
+    private boolean navPopular = true, navTopRated, navFavorite;
     private MainViewModel viewModel;
     //	private final String LIST_STATE_KEY = "layout_state";
 //	private static Bundle mBundleRecyclerViewState;
@@ -66,6 +70,19 @@ public class MainActivity extends AppCompatActivity {
     Context context;
     private int recycler_position;
     GridLayoutManager mLayoutManager;
+
+    TaskHandler taskHandler = new TaskHandler() {
+        @Override
+        public void onComplete(List<Movie> data) {
+            MainActivity.this.mItemList = data;
+            movieAdapter.update(data);
+        }
+    };
+    private String DATA_KEY;
+    private Parcelable listState;
+    private String SAVED_RECYCLER_VIEW_STATUS_ID;
+    private String SAVED_RECYCLER_VIEW_DATASET_ID;
+    private Bundle mSavedInstanceState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,19 +94,21 @@ public class MainActivity extends AppCompatActivity {
 
 
         if (isOnline()) {
-            if (savedInstanceState == null) {
-                recycler_position = 0;
-                requestMostPopular(mItemList);
+
+            if (navPopular) {
+                requestMostPopular();
             }
+            if (navFavorite) requestFavourites();
+            if (navTopRated) requestTopRated(mItemList);
+
+
+        } else {
+            Toast.makeText(this, "Please Check your Internet", Toast.LENGTH_SHORT).show();
+
         }
 
-        else {
-                Toast.makeText(this, "Please Check your Internet", Toast.LENGTH_SHORT).show();
 
-            }
-
-
-        }
+    }
 
 
     private void initRecyclerView(List<Movie> mItemList) {
@@ -97,8 +116,9 @@ public class MainActivity extends AppCompatActivity {
         movieAdapter = new MovieAdapter(mItemList);
         recyclerView.setAdapter(movieAdapter);
         mLayoutManager = new GridLayoutManager(context, 2);
-        recyclerView.setLayoutManager( mLayoutManager);
+        recyclerView.setLayoutManager(mLayoutManager);
         recyclerView.smoothScrollToPosition(recycler_position);
+
 
         //change span dynamically based on screen width
         recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(
@@ -114,6 +134,9 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         recyclerView.setVisibility(View.VISIBLE);
+//        if (LIST_STATE_KEY != null) {
+//            recyclerView.getLayoutManager().onRestoreInstanceState(listState);
+//        }
     }
 
     @Override
@@ -146,8 +169,12 @@ public class MainActivity extends AppCompatActivity {
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
                                 switch (which) {
-                                    case 0 : requestMostPopular(mItemList); break;
-                                    case 1 : requestTopRated(mItemList); break;
+                                    case 0:
+                                        requestMostPopular();
+                                        break;
+                                    case 1:
+                                        requestTopRated(mItemList);
+                                        break;
 
                                 }
                                 dialog.dismiss();
@@ -172,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
 //        recycler_position = 0 ;
     }
 
-    private void requestMostPopular(final List<Movie> mItemList) {
+    private void requestMostPopular() {
         navPopular = true;
         navTopRated = false;
         navFavorite = false;
@@ -255,28 +282,30 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putInt("ID", mLayoutManager.findLastVisibleItemPosition());
-        outState.putBoolean(getString(R.string.title_popular), navPopular);
-        outState.putBoolean(getString(R.string.title_favorite), navFavorite);
-        outState.putBoolean(getString(R.string.title_top_rated), navTopRated);
+    protected void onPause()
+    {
+        super.onPause();
+
+        // save RecyclerView state
+        mBundleRecyclerViewState = new Bundle();
+        Parcelable listState = recyclerView.getLayoutManager().onSaveInstanceState();
+        mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, listState);
     }
 
     @Override
-    protected void onRestoreInstanceState(Bundle savedInstanceState) {
-        super.onRestoreInstanceState(savedInstanceState);
-            recycler_position = savedInstanceState.getInt("ID");
-            if (savedInstanceState.getBoolean(getString(R.string.title_popular))) {
-                requestMostPopular(mItemList);
-            } else if (savedInstanceState.getBoolean(getString(R.string.title_favorite))) {
-                requestFavourites();
-            } else if (savedInstanceState.getBoolean(getString(R.string.title_top_rated))) {
-                requestTopRated(mItemList);
-            }
+    protected void onResume()
+    {
+        super.onResume();
 
-
+        // restore RecyclerView state
+        if (mBundleRecyclerViewState != null) {
+            Parcelable listState = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
+            recyclerView.getLayoutManager().onRestoreInstanceState(listState);
+        }
     }
+
+
 }
+
 
 

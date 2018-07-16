@@ -77,7 +77,7 @@ public class Description extends AppCompatActivity {
         unbinder = ButterKnife.bind(this);
         mMovie = getIntent().getParcelableExtra("movieItem");
 
-
+        setFabIcon();
         setTitle(mMovie.getTitle());
         populateUI();
         //recyclerView
@@ -113,7 +113,7 @@ public class Description extends AppCompatActivity {
                 .build();
 
         mService = mRetrofit.create(MyWebService.class);
-        mService.discoverReview(mMovie.getId().toString(), Constants.MOVIEDB_APIKEY).enqueue(new Callback<ReviewResponse>() {
+        mService.discoverReview(mMovie.getId(), Constants.MOVIEDB_APIKEY).enqueue(new Callback<ReviewResponse>() {
             @Override
             public void onResponse(@NonNull Call<ReviewResponse> call, @NonNull Response<ReviewResponse> response) {
 

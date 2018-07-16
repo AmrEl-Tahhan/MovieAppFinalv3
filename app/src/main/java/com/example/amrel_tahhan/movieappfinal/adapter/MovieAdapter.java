@@ -25,6 +25,10 @@ import java.util.List;
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.ViewHolder> {
 
     private List<Movie> Movies;
+    public void update(List<Movie> data){
+        this.Movies = data ;
+        notifyDataSetChanged();
+    }
 
     public MovieAdapter(List<Movie> movies) {
         Movies = movies;
