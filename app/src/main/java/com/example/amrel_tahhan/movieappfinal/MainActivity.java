@@ -25,6 +25,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Toast;
 
@@ -59,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
     private MovieAdapter movieAdapter;
-    private List<Movie> mItemList = new ArrayList<>();
+    private ArrayList<Movie> mItemList = new ArrayList<>();
     private LiveData<List<Movie>> mItemListLiveData = new MediatorLiveData<>();
     private String mSort = Constants.SORT_POPULAR;
     @BindView(R.id.toolbar)
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 //        }
 //    };
 
-    private int lastFirstVisiblePosition=0;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,28 +87,34 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         toolbar.setTitle(R.string.app_name);
         setSupportActionBar(toolbar);
+        if (savedInstanceState != null){
+            int position = savedInstanceState.getInt("position");
+            Log.i("tag", "onCreate: " +position);
+            mItemList = savedInstanceState.getParcelableArrayList("array");
+            initRecyclerView(mItemList);
+            recyclerView.scrollToPosition(position);
+
+        }
+        else {
+            if (isOnline()) {
+
+                if (navPopular) {
+                    requestMostPopular();
+                }
+                if (navFavorite) requestFavourites();
+                if (navTopRated) requestTopRated(mItemList);
 
 
+            } else {
+                Toast.makeText(this, "Please Check your Internet", Toast.LENGTH_SHORT).show();
 
-        if (isOnline()) {
-
-            if (navPopular) {
-                requestMostPopular();
             }
-            if (navFavorite) requestFavourites();
-            if (navTopRated) requestTopRated(mItemList);
-
-
-        } else {
-            Toast.makeText(this, "Please Check your Internet", Toast.LENGTH_SHORT).show();
 
         }
-        if (savedInstanceState != null) {
-            lastFirstVisiblePosition = savedInstanceState.getInt("int") ;
-            recyclerView.scrollToPosition(lastFirstVisiblePosition);
 
-        }
-        Log.i("log", "onCreate: " +lastFirstVisiblePosition);
+
+
+
 
 
     }
@@ -269,7 +276,6 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-//        recycler_position = 0 ;
     }
 
     public boolean isOnline() {
@@ -282,11 +288,10 @@ public class MainActivity extends AppCompatActivity {
 
 
     @Override
-    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
-        super.onSaveInstanceState(outState, outPersistentState);
-        // Save list state
-        lastFirstVisiblePosition = ((GridLayoutManager)recyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
-        outState.putInt("int",lastFirstVisiblePosition);
+    public void onSaveInstanceState(Bundle outState ) {
+        outState.putParcelableArrayList("array",mItemList);
+        outState.putInt("position",recyclerView.computeVerticalScrollRange());
+        super.onSaveInstanceState(outState);
 
     }
 
