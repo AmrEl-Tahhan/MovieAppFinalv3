@@ -56,6 +56,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
     public static final int MAX_WIDTH_COL_DP = 200;
     Parcelable mListState;
+    public static final String ARRAY_TAG = "array";
+    public static final String POSOTION_TAG = "position";
 
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
@@ -88,9 +90,9 @@ public class MainActivity extends AppCompatActivity {
         toolbar.setTitle(R.string.app_name);
         setSupportActionBar(toolbar);
         if (savedInstanceState != null){
-            int position = savedInstanceState.getInt("position");
+            int position = savedInstanceState.getInt(POSOTION_TAG);
             Log.i("tag", "onCreate: " +position);
-            mItemList = savedInstanceState.getParcelableArrayList("array");
+            mItemList = savedInstanceState.getParcelableArrayList(ARRAY_TAG);
             initRecyclerView(mItemList);
             recyclerView.scrollToPosition(position);
 
@@ -289,8 +291,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onSaveInstanceState(Bundle outState ) {
-        outState.putParcelableArrayList("array",mItemList);
-        outState.putInt("position",recyclerView.computeVerticalScrollRange());
+        outState.putParcelableArrayList(ARRAY_TAG,mItemList);
+        outState.putInt(POSOTION_TAG,recyclerView.computeVerticalScrollRange());
         super.onSaveInstanceState(outState);
 
     }

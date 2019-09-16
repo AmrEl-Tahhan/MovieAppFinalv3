@@ -1,8 +1,12 @@
 package com.example.amrel_tahhan.movieappfinal;
 
+import android.arch.lifecycle.Lifecycle;
+import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.os.Build;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -66,6 +70,8 @@ public class Description extends AppCompatActivity {
     ReviewAdapter mReviewAdapter;
     VideoAdapter mVideoAdapter;
 
+    MovieViewModel movieViewModel;
+
     private Unbinder unbinder;
 
 
@@ -85,7 +91,8 @@ public class Description extends AppCompatActivity {
         retrieveReviews();
         initRecyclerView();
         initVidRecyclerView();
-        LiveData<MovieViewModel> liveData;
+
+
     }
 
     private void initRecyclerView() {
@@ -255,8 +262,9 @@ public class Description extends AppCompatActivity {
     }
 
     public void setFabIcon() {
-        final MovieDatabase database = MovieDatabase.getInstanse(this);
         if (mMovie != null) {
+            final MovieDatabase database = MovieDatabase.getInstanse(this);
+
             AppExecutors.getInstance().diskIO().execute(new Runnable() {
                 @Override
                 public void run() {
@@ -279,5 +287,10 @@ public class Description extends AppCompatActivity {
         }
 
     }
+
+
+
+
+
 }
 
