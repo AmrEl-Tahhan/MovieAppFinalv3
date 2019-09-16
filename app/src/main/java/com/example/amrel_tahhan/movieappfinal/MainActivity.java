@@ -1,14 +1,17 @@
 package com.example.amrel_tahhan.movieappfinal;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MediatorLiveData;
 import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -52,37 +55,29 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainActivity extends AppCompatActivity {
     public static final int MAX_WIDTH_COL_DP = 200;
     Parcelable mListState;
-    private final String KEY_RECYCLER_STATE = "recycler_state";
-    private static Bundle mBundleRecyclerViewState;
+
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
     private MovieAdapter movieAdapter;
     private List<Movie> mItemList = new ArrayList<>();
+    private LiveData<List<Movie>> mItemListLiveData = new MediatorLiveData<>();
     private String mSort = Constants.SORT_POPULAR;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
-    private String LIST_STATE_KEY = "key";
     private boolean navPopular = true, navTopRated, navFavorite;
-    private MainViewModel viewModel;
-    //	private final String LIST_STATE_KEY = "layout_state";
-//	private static Bundle mBundleRecyclerViewState;
-//	private MainViewModel viewModel;
+
     Context context;
-    private int recycler_position;
     GridLayoutManager mLayoutManager;
 
-    TaskHandler taskHandler = new TaskHandler() {
-        @Override
-        public void onComplete(List<Movie> data) {
-            MainActivity.this.mItemList = data;
-            movieAdapter.update(data);
-        }
-    };
-    private String DATA_KEY;
-    private Parcelable listState;
-    private String SAVED_RECYCLER_VIEW_STATUS_ID;
-    private String SAVED_RECYCLER_VIEW_DATASET_ID;
-    private Bundle mSavedInstanceState;
+//    TaskHandler taskHandler = new TaskHandler() {
+//        @Override
+//        public void onComplete(List<Movie> data) {
+//            MainActivity.this.mItemList = data;
+//            movieAdapter.update(data);
+//        }
+//    };
+
+    private int lastFirstVisiblePosition=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         toolbar.setTitle(R.string.app_name);
         setSupportActionBar(toolbar);
+
 
 
         if (isOnline()) {
@@ -106,6 +102,12 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Please Check your Internet", Toast.LENGTH_SHORT).show();
 
         }
+        if (savedInstanceState != null) {
+            lastFirstVisiblePosition = savedInstanceState.getInt("int") ;
+            recyclerView.scrollToPosition(lastFirstVisiblePosition);
+
+        }
+        Log.i("log", "onCreate: " +lastFirstVisiblePosition);
 
 
     }
@@ -117,9 +119,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setAdapter(movieAdapter);
         mLayoutManager = new GridLayoutManager(context, 2);
         recyclerView.setLayoutManager(mLayoutManager);
-        recyclerView.smoothScrollToPosition(recycler_position);
-
-
         //change span dynamically based on screen width
         recyclerView.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -131,12 +130,11 @@ public class MainActivity extends AppCompatActivity {
                         mLayoutManager.setSpanCount(newSpanCount);
                         mLayoutManager.requestLayout();
 
+
                     }
                 });
         recyclerView.setVisibility(View.VISIBLE);
-//        if (LIST_STATE_KEY != null) {
-//            recyclerView.getLayoutManager().onRestoreInstanceState(listState);
-//        }
+
     }
 
     @Override
@@ -281,28 +279,19 @@ public class MainActivity extends AppCompatActivity {
         return netInfo != null && netInfo.isConnectedOrConnecting();
     }
 
-    @Override
-    protected void onPause()
-    {
-        super.onPause();
 
-        // save RecyclerView state
-        mBundleRecyclerViewState = new Bundle();
-        Parcelable listState = recyclerView.getLayoutManager().onSaveInstanceState();
-        mBundleRecyclerViewState.putParcelable(KEY_RECYCLER_STATE, listState);
-    }
 
     @Override
-    protected void onResume()
-    {
-        super.onResume();
+    public void onSaveInstanceState(Bundle outState, PersistableBundle outPersistentState) {
+        super.onSaveInstanceState(outState, outPersistentState);
+        // Save list state
+        lastFirstVisiblePosition = ((GridLayoutManager)recyclerView.getLayoutManager()).findFirstCompletelyVisibleItemPosition();
+        outState.putInt("int",lastFirstVisiblePosition);
 
-        // restore RecyclerView state
-        if (mBundleRecyclerViewState != null) {
-            Parcelable listState = mBundleRecyclerViewState.getParcelable(KEY_RECYCLER_STATE);
-            recyclerView.getLayoutManager().onRestoreInstanceState(listState);
-        }
     }
+
+
+
 
 
 }
