@@ -24,8 +24,7 @@ public interface MyWebService {
     @GET("movie/top_rated")
     Call<MovieResponse> discoverTopRatedMovie(@Query("api_key") String apiKey);
 
-    @GET("discover/movie")
-    Call<MovieResponse> discoverMovie(@Query("api_key") String apiKey, @Query("sort_by") String sortBy);
+
 
     @GET("movie/{id}/reviews")
     Call<ReviewResponse> discoverReview(@Path("id") String id, @Query("api_key") String apiKey);
