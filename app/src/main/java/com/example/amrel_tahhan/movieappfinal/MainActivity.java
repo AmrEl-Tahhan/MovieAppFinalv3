@@ -195,14 +195,22 @@ public class MainActivity extends AppCompatActivity {
         navTopRated = false;
         navFavorite = true;
         MovieDatabase mDb = MovieDatabase.getInstanse(this);
-        LiveData<List<Movie>> fItemList = mDb.movieDao().loadAllMovies();
-        fItemList.observe(this, new Observer<List<Movie>>() {
+//        LiveData<List<Movie>> fItemList = mDb.movieDao().loadAllMovies();
+        MainViewModel mainViewModel = new MainViewModel(getApplication());
+        mainViewModel.getMovies().observe(this, new Observer<List<Movie>>() {
             @Override
             public void onChanged(@Nullable List<Movie> movies) {
                 initRecyclerView(movies);
-
             }
         });
+
+//        fItemList.observe(this, new Observer<List<Movie>>() {
+//            @Override
+//            public void onChanged(@Nullable List<Movie> movies) {
+//                initRecyclerView(movies);
+//
+//            }
+//        });
 //        recycler_position = 0 ;
     }
 

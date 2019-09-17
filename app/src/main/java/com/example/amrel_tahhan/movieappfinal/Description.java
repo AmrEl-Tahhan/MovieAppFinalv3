@@ -240,7 +240,7 @@ public class Description extends AppCompatActivity {
             @Override
             public void run() {
 
-                isMovie = database.movieDao().loadMovieById2(mMovie.getId()) != null;
+                isMovie = database.movieDao().loadMovieById(mMovie.getId()) != null;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -268,7 +268,7 @@ public class Description extends AppCompatActivity {
             AppExecutors.getInstance().diskIO().execute(new Runnable() {
                 @Override
                 public void run() {
-                    if (database.movieDao().loadMovieById2(mMovie.getId()) != null)
+                    if (database.movieDao().loadMovieById(mMovie.getId()) != null)
                         isMovie = true;
                     runOnUiThread(new Runnable() {
                         @Override
