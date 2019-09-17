@@ -1,12 +1,7 @@
 package com.example.amrel_tahhan.movieappfinal;
 
-import android.arch.lifecycle.Lifecycle;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
 import android.os.Build;
 import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -26,7 +21,6 @@ import com.example.amrel_tahhan.movieappfinal.model.ReviewResponse;
 import com.example.amrel_tahhan.movieappfinal.model.VideoResponse;
 import com.example.amrel_tahhan.movieappfinal.retrofit.MyWebService;
 import com.example.amrel_tahhan.movieappfinal.viewmodel.AppExecutors;
-import com.example.amrel_tahhan.movieappfinal.viewmodel.MovieViewModel;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
@@ -70,8 +64,6 @@ public class Description extends AppCompatActivity {
     ReviewAdapter mReviewAdapter;
     VideoAdapter mVideoAdapter;
 
-    MovieViewModel movieViewModel;
-
     private Unbinder unbinder;
 
 
@@ -79,11 +71,9 @@ public class Description extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_description);
-        setFabIcon();
         unbinder = ButterKnife.bind(this);
         mMovie = getIntent().getParcelableExtra("movieItem");
 
-        setFabIcon();
         setTitle(mMovie.getTitle());
         populateUI();
         //recyclerView
@@ -91,6 +81,8 @@ public class Description extends AppCompatActivity {
         retrieveReviews();
         initRecyclerView();
         initVidRecyclerView();
+        Log.i("tag", "onCreate: " + isMovie);
+        setFabIcon();
 
 
     }
@@ -203,33 +195,31 @@ public class Description extends AppCompatActivity {
 
 
     public void saveFavorite() {
-        final Movie favoriteMovie = new Movie(mMovie.getVote_average(), mMovie.getBackdrop_path(), mMovie.getId(), mMovie.getTitle()
-                , mMovie.getOverview(), mMovie.getRelease_date(), mMovie.getOriginal_title(),
-                mMovie.getVote_count(), mMovie.getPoster_path(), mMovie.getVideo());
+
         final MovieDatabase database = MovieDatabase.getInstanse(this);
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                database.movieDao().insertMovie(favoriteMovie);
+                database.movieDao().insertMovie(mMovie);
 
             }
         });
+        isMovie = true;
     }
 
     public void deleteFavorite() {
-        final Movie favoriteMovie = new Movie(mMovie.getVote_average(), mMovie.getBackdrop_path(), mMovie.getId(), mMovie.getTitle()
-                , mMovie.getOverview(), mMovie.getRelease_date(), mMovie.getOriginal_title(),
-                mMovie.getVote_count(), mMovie.getPoster_path(), mMovie.getVideo());
+
 
         final MovieDatabase database = MovieDatabase.getInstanse(this);
 
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                database.movieDao().deleteMovie(favoriteMovie);
+                database.movieDao().deleteMovie(mMovie);
 
             }
         });
+        isMovie = false;
     }
 
     public void onFabClickHandler(View view) {
@@ -240,7 +230,7 @@ public class Description extends AppCompatActivity {
             @Override
             public void run() {
 
-                isMovie = database.movieDao().loadMovieById(mMovie.getId()) != null;
+                isMovie = database.movieDao().loadMovieById2(mMovie.getId()) != null;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -268,7 +258,7 @@ public class Description extends AppCompatActivity {
             AppExecutors.getInstance().diskIO().execute(new Runnable() {
                 @Override
                 public void run() {
-                    if (database.movieDao().loadMovieById(mMovie.getId()) != null)
+                    if (database.movieDao().loadMovieById2(mMovie.getId()) != null)
                         isMovie = true;
                     runOnUiThread(new Runnable() {
                         @Override
@@ -289,8 +279,11 @@ public class Description extends AppCompatActivity {
     }
 
 
-
-
-
 }
+
+
+
+
+
+
 

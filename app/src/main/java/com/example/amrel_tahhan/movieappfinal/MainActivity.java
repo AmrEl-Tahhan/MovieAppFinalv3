@@ -63,7 +63,6 @@ public class MainActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     private MovieAdapter movieAdapter;
     private ArrayList<Movie> mItemList = new ArrayList<>();
-    private LiveData<List<Movie>> mItemListLiveData = new MediatorLiveData<>();
     private String mSort = Constants.SORT_POPULAR;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
@@ -194,8 +193,6 @@ public class MainActivity extends AppCompatActivity {
         navPopular = false;
         navTopRated = false;
         navFavorite = true;
-        MovieDatabase mDb = MovieDatabase.getInstanse(this);
-//        LiveData<List<Movie>> fItemList = mDb.movieDao().loadAllMovies();
         MainViewModel mainViewModel = new MainViewModel(getApplication());
         mainViewModel.getMovies().observe(this, new Observer<List<Movie>>() {
             @Override
@@ -204,14 +201,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-//        fItemList.observe(this, new Observer<List<Movie>>() {
-//            @Override
-//            public void onChanged(@Nullable List<Movie> movies) {
-//                initRecyclerView(movies);
-//
-//            }
-//        });
-//        recycler_position = 0 ;
     }
 
     private void requestMostPopular() {
