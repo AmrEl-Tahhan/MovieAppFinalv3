@@ -58,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
     Parcelable mListState;
     public static final String ARRAY_TAG = "array";
     public static final String POSOTION_TAG = "position";
+    public static final String SORT_TAG = "sort";
 
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
@@ -66,6 +67,8 @@ public class MainActivity extends AppCompatActivity {
     private String mSort = Constants.SORT_POPULAR;
     @BindView(R.id.toolbar)
     Toolbar toolbar;
+    MainViewModel mainViewModel;
+
     private boolean navPopular = true, navTopRated, navFavorite;
 
     Context context;
@@ -94,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
             mItemList = savedInstanceState.getParcelableArrayList(ARRAY_TAG);
             initRecyclerView(mItemList);
             recyclerView.scrollToPosition(position);
+            mSort = savedInstanceState.getString(SORT_TAG);
 
         }
         else {
@@ -177,9 +181,12 @@ public class MainActivity extends AppCompatActivity {
                                 switch (which) {
                                     case 0:
                                         requestMostPopular();
+                                        mSort = Constants.SORT_POPULAR;
                                         break;
                                     case 1:
                                         requestTopRated(mItemList);
+                                        mSort = Constants.SORT_HIGHEST_RATED;
+
                                         break;
 
                                 }
@@ -193,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
         navPopular = false;
         navTopRated = false;
         navFavorite = true;
-        MainViewModel mainViewModel = new MainViewModel(getApplication());
+        mainViewModel = new MainViewModel(getApplication());
         mainViewModel.getMovies().observe(this, new Observer<List<Movie>>() {
             @Override
             public void onChanged(@Nullable List<Movie> movies) {
@@ -288,8 +295,18 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public void onSaveInstanceState(Bundle outState ) {
+        if (navFavorite){
+            mainViewModel.getMovies().observe(this, new Observer<List<Movie>>() {
+                @Override
+                public void onChanged(@Nullable List<Movie> movies) {
+                    mItemList.clear();
+                    mItemList.addAll(movies);
+                }
+            });
+        }
         outState.putParcelableArrayList(ARRAY_TAG,mItemList);
         outState.putInt(POSOTION_TAG,recyclerView.computeVerticalScrollRange());
+        outState.putString(SORT_TAG,mSort);
         super.onSaveInstanceState(outState);
 
     }
