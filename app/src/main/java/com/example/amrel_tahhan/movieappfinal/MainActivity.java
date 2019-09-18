@@ -1,17 +1,12 @@
 package com.example.amrel_tahhan.movieappfinal;
 
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MediatorLiveData;
+
 import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
-import android.os.Build;
-import android.os.Parcel;
+import android.net.NetworkInfo;;
 import android.os.Parcelable;
-import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -19,24 +14,19 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.Toast;
-
 import com.example.amrel_tahhan.movieappfinal.adapter.MovieAdapter;
-import com.example.amrel_tahhan.movieappfinal.database.MovieDatabase;
 import com.example.amrel_tahhan.movieappfinal.model.MovieResponse;
 import com.example.amrel_tahhan.movieappfinal.model.Movie;
 import com.example.amrel_tahhan.movieappfinal.retrofit.MyWebService;
 import com.example.amrel_tahhan.movieappfinal.viewmodel.MainViewModel;
 import com.google.gson.Gson;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,11 +37,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-// sources that I've used
-//1st http://hendiware.16mb.com/android-webservices-%D8%A8%D8%A7%D9%84%D8%B9%D8%B1%D8%A8%D9%8A%D8%A9-retrofit/
-//     2nd   http://jakewharton.github.io/butterknife/
-// 3rd https://www.youtube.com/watch?v=THadGrPeSJM
-// 4th https://www.youtube.com/watch?v=kmUGLURRPkI&t=9s
+
 
 public class MainActivity extends AppCompatActivity {
     public static final int MAX_WIDTH_COL_DP = 200;
@@ -68,19 +54,9 @@ public class MainActivity extends AppCompatActivity {
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     MainViewModel mainViewModel;
-
     private boolean navPopular = true, navTopRated, navFavorite;
-
     Context context;
     GridLayoutManager mLayoutManager;
-
-//    TaskHandler taskHandler = new TaskHandler() {
-//        @Override
-//        public void onComplete(List<Movie> data) {
-//            MainActivity.this.mItemList = data;
-//            movieAdapter.update(data);
-//        }
-//    };
 
 
 
